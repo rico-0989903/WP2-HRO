@@ -95,6 +95,9 @@ def hello_jquery():
 def hello_javascript():
     return send_from_directory("www", "highscore_js.html")
 
+@app.route("/studenten")
+def hello_student():
+    return send_from_directory("www", "studenten_js.html")
 
 DATABASE_FILE = os.path.join(app.instance_path, "scores.db")
 highscores = HighScores(DATABASE_FILE)
