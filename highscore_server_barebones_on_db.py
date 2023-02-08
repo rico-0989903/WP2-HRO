@@ -3,7 +3,7 @@ import sqlite3
 
 from flask import Flask, send_from_directory, jsonify, request
 from flask_cors import CORS
-import Highscore as hs
+import Datamodel as hs
 
 app = Flask(__name__, static_url_path="/", static_folder="www")
 # MarkO: This is required for clients running on different protocol/DNS/port numbers.
@@ -21,7 +21,7 @@ def handle_highscores(game):
             highscores.insert_score(body["name"], body["score"], game)
             result = "ok"
             error = ""
-        except HighScores as e:
+        except hs.HighScores as e:
             result = "error"
             error = f"Missing required field ({e})"
         except Exception as e:
