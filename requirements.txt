@@ -1,0 +1,7 @@
+Flask
+flask-apispec
+Flask-RESTful
+flask-cors
+flask_sqlalchemy
+requests
+requests_toolbelt
