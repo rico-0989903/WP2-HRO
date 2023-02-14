@@ -3,26 +3,36 @@ import sqlite3
 import qrcode
 from flask import Flask, render_template, jsonify, request, url_for, make_response
 from flask_sqlalchemy import SQLAlchemy
-from flask_cors import CORS
+from flask_marshmallow import Marshmallow
 
 
 app = Flask(__name__)
 # MarkO: This is required for clients running on different protocol/DNS/port numbers.
 # I have a presentation on CORS if you need to know more.
 
+basedir = os.path.abspath(os.path.dirname(__name__))
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///databases/database.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///'+os.path.join(basedir, 'db.sqlite')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
+ma = Marshmallow(app)
 
 class aanwezig(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     naam = db.Column(db.String(30), unique=True, nullable=False)
     studentnummer = db.Column(db.Integer, unique=True, nullable=False)
 
-    def __repr__(self):
-        return self.naam
+    def __init__(self, naam, studentnummer):
+        self.naam = naam
+        self.studentnummer = studentnummer
+
+class ProductSchema(ma.Schema):
+    class Meta:
+        fields = ('id', 'naam', 'studentnummer')
+
+product_schema = ProductSchema()
+products_schema = ProductSchema(many=True)
 
 @app.route("/")
 def index():
@@ -44,7 +54,7 @@ def klassen():
 @app.route("/klas/<les>", methods = ['POST', 'GET'])
 def klas(les):
     test = True
-    img = qrcode.make(f"http://127.0.0.1:5000/{les}")
+    img = qrcode.make(f"http://192.168.178.118:5000/les/{les}")
     img.save('static/qr.png')
     img = url_for('static', filename='qr.png')
     return render_template('qrcode.html', img=img, test=test, les=les)
@@ -55,26 +65,16 @@ def aanwezigheid(les):
 
 @app.route("/test", methods = ['POST','GET'])
 def test():
-    
-    data = [{"naam": "roman", "nummer": "1261"},
-            {"naam": "roman2", "nummer": "1271"},
-            {"naam": "roman3", "nummer": "1281"}
-            ]
-    #incomingdata = request.json
-    #data.append(incomingdata)
-    print(data)
-    return jsonify(data)
+    studenten = aanwezig.query.all()
+    result = products_schema.dump(studenten)
+    return jsonify(result)
 
 @app.route("/data", methods = ['POST', 'GET'])
 def data():
-    
-    data = aanwezig(naam=request.json['naam'], studentnummer=request.json['nummer'])
-
+    data = aanwezig(naam=request.json['naam'], studentnummer=request.json['studentnummer'])
     db.session.add(data)
     db.session.commit()
-
-    return {'id': aanwezig.id}
-    
+    return ProductSchema.jsonify(data)  
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host="192.168.178.118", debug=True)

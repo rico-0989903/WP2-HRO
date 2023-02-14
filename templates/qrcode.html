@@ -47,12 +47,12 @@
             tabel.innerHTML += `
             <tr>
                 <td>${student["naam"]}</td>
-                <td>${student["nummer"]}</td>
+                <td>${student["studentnummer"]}</td>
             </tr>
             `
             })
         }
     fetch_scores()
-    /*let interval_id = setInterval(fetch_scores, 10000)*/
+    let interval_id = setInterval(fetch_scores, 2000)
 </script>
 {% endblock %}

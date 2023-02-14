@@ -20,11 +20,11 @@
     function submit_entry(){
         try{
             var naam = document.getElementById('naam');
-            var nummer = document.getElementById('studentnummer');
+            var studentnummer = document.getElementById('studentnummer');
 
             var entry = {
                 naam: naam.value,
-                nummer: nummer.value
+                studentnummer: studentnummer.value
             };
 
             fetch('/data',{
