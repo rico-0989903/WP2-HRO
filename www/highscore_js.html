@@ -33,12 +33,11 @@
         let scorelist = document.getElementById("scorelist")
         scorelist.replaceChildren()
         // This REST call returns { "scores":[]} if there are no highscores for this game
-        if (scoresdata["scores"].length > 0) {
-            scoresdata["scores"].forEach(function (item) {
+        scoresdata["scores"].forEach(function (item) {
                 scorelist.innerHTML += "<dt>" + item["name"] + "</dt><dd>" + item["score"] + "</dd>"
             })
-        }
     }
+    
 
     const fetch_scores = async () => {
         try {
@@ -75,7 +74,8 @@
                 'Content-Type': 'application/json'
             }
         }).then(fetch_scores);
-        } catch (e) {
+        } 
+        catch (e) {
             console.log("Some error with fetching JSON from highscore server: " + e)
         }
     }
