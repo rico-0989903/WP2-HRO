@@ -76,5 +76,6 @@ def data():
     data.aanwezigheid=request.json['aanwezigheid']
     db.session.commit()
     return jsonify("Gelukt")
+
 if __name__ == '__main__':
     app.run(host="localhost", debug=True)
