@@ -46,7 +46,7 @@ def docenten():
 
 @app.route("/klassen")
 def klassen():
-    return render_template('klassen.html',)
+    return render_template('klassen.html')
 
 @app.route("/klas/<les>", methods = ['POST', 'GET'])
 def klas(les):
