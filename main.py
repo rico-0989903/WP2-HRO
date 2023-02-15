@@ -50,11 +50,10 @@ def klassen():
 
 @app.route("/klas/<les>", methods = ['POST', 'GET'])
 def klas(les):
-    test = True
     img = qrcode.make(f"http://127.0.0.1:5000/les/{les}")
     img.save('static/qr.png')
     img = url_for('static', filename='qr.png')
-    return render_template('qrcode.html', img=img, test=test, les=les)
+    return render_template('qrcode.html', img=img, les=les)
 
 @app.route("/les/<les>")
 def aanwezigheid(les):
