@@ -1,0 +1,58 @@
+{% extends "index.html" %}
+
+{% block qr %}
+<img src="{{img}}">
+{% endblock %}
+{% block aanwezig %}
+<table>
+    <thead>
+        <tr>
+            <th>Naam</th>
+            <th>Studentnummer</th>
+        </tr>
+    </thead>
+    <tbody id="fillin">
+
+    </tbody>
+</table>
+
+<script>
+    const fetch_scores = async () => {
+        try {
+            const response = await fetch('/test', {
+                method: 'GET',
+                headers: {
+                    'accept': 'application/json',
+                    'Content-Type': 'application/json'
+                }
+            });
+            const data = await response.json();
+            if (response.error) {
+                console.log("Some error with fetching JSON from highscore server")
+            } else if (!response.ok) {
+                console.log("Some non-200 HTTP response code")
+            } else {
+                set_scores(data)
+            }
+        } catch (error) {
+            console.log(error);
+        }
+    }
+    
+    function set_scores(aanwezigheid) {
+        let tabel = document.getElementById("fillin")
+        tabel.replaceChildren()
+        // This REST call returns { "scores":[]} if there are no highscores for this game
+            aanwezigheid.forEach(function (student) {
+            tabel.innerHTML += `
+            <tr>
+                <td>${student["naam"]}</td>
+                <td>${student["studentnummer"]}</td>
+            </tr>
+            `
+            })
+        }
+    fetch_scores()
+    let interval_id = setInterval(fetch_scores, 2000)
+</script>
+{% endblock %}
