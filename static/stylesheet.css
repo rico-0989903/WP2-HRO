@@ -1,5 +1,5 @@
 body{
-    background-color: rgb(68, 68, 68);
+    background-color: rgb(248, 245, 238);
     margin: 0px;
 }
 main{
@@ -20,7 +20,7 @@ main{
     width: 5rem;
     height: 100vh;
     position: fixed;
-    background-color: rgb(54, 54, 54);
+    background-color: rgb(110, 0, 28);
     box-shadow: 1px 1px 5px black;
     
     
@@ -37,8 +37,8 @@ main{
 }
 
 .navbar-link{
-    color: rgb(209, 0, 65);
-    fill: rgb(0, 0, 0);
+    color: whitesmoke;
+    fill: whitesmoke;
     display: flex;
     align-items: center;
     height: 6rem;
@@ -60,7 +60,7 @@ main{
 }
 .nav-item{
     width: 100%;
-    box-shadow: 0px 4px 5px -2px black;
+    box-shadow: 0px 4px 5px -2px darkred;
 }
 .nav-item:last-child{
     margin-top: auto;
@@ -96,10 +96,10 @@ main{
 .klas{
     width: 20rem;
     height: 20rem;
-    background-color: rgb(54, 54, 54);
+    background-color: rgb(110, 0, 28);
     margin: 1rem;
     border-radius: 1rem;
-    box-shadow: 1px 1px 5px black;
+    box-shadow: darkred;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -107,6 +107,7 @@ main{
     transition: 400ms ease;
     cursor: pointer;
     color: white;
+    font-weight: bold;
 }
 
 .lessen{
@@ -119,10 +120,10 @@ main{
 .les{
     width: 20rem;
     height: 20rem;
-    background-color: rgb(54, 54, 54);
+    background-color: rgb(110, 0, 28);
     margin: 1rem;
     border-radius: 1rem;
-    box-shadow: 1px 1px 5px black;
+    box-shadow: darkred;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -130,34 +131,62 @@ main{
     transition: 400ms ease;
     cursor: pointer;
     color: white;
-}
-
-p {
-    font-family: monospace;
-    font-size: 1rem;
-    color: white;
+    font-weight: bold;
 }
 
 h1 {
     font-family: monospace;
     font-size: 1.5rem;
-    color: white;
+    color: darkslategray;
+    font-weight: bold;
 }
 
 tr {
     font-family: monospace;
     font-size: 1rem;
-    color: white;
+    color: darkslategrey;
+    font-weight: bold;
 }
 
 th {
     font-family: monospace;
     font-size: 1rem;
-    color: white;
+    color: darkslategrey;
+    font-weight: bold;
 }
 
 label {
     font-family: monospace;
     font-size: 1rem;
-    color: white;
+    color : darkslategrey;
+    font-weight: bold;
 }
+
+p.klas {
+    font-family: monospace;
+    font-size: 1rem;
+    color: white;
+    font-weight: bold;
+}
+
+p.lessen {
+    font-family: monospace;
+    font-size: 1rem;
+    color: white;
+    font-weight: bold;
+}
+
+a {
+    font-family: monospace;
+    font-size: 1rem;
+    color: white;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+p {
+    font-family: monospace;
+    font-size: 1rem;
+    font-weight: bold;
+}
+
