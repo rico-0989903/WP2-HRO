@@ -42,7 +42,6 @@
     function set_scores(aanwezigheid) {
         let tabel = document.getElementById("fillin")
         tabel.replaceChildren()
-        // This REST call returns { "scores":[]} if there are no highscores for this game
             aanwezigheid.forEach(function (student) {
             tabel.innerHTML += `
             <tr>
