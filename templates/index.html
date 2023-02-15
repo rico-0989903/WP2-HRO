@@ -1,4 +1,3 @@
-
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -14,7 +13,9 @@
         <ul class="navbar-nav">
             <li >
                 <a class="navbar-link" href="/">
-                    <span id="homebutton">Hr</span>
+                    <span id="homebutton">
+                        <img src="static/Hogeschool-Rotterdam-logo.webp" style="width:100px;height:auto;">
+                      </a></span>
                 </a>
             </li>
             <li class="nav-item">
@@ -55,6 +56,9 @@
         {% block form %}{% endblock %}
         {% block aanwezig %}{% endblock %}
         {% block home %}{% endblock %}
+        {% block docent %}{% endblock %}
+        {% block klas %}{% endblock %}
+        {% block les %}{% endblock %}
     </main>
 </body>
 </html>
