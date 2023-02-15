@@ -38,21 +38,20 @@ def index():
 
 @app.route("/lessen")
 def lessen():
-    return render_template('index.html')
+    return render_template('lessen.html')
 
 @app.route("/docenten")
 def docenten():
-    return render_template('index.html')
+    return render_template('docenten.html')
 
 @app.route("/klassen")
 def klassen():
-    
-    return render_template('index.html',)
+    return render_template('klassen.html',)
 
 @app.route("/klas/<les>", methods = ['POST', 'GET'])
 def klas(les):
     test = True
-    img = qrcode.make(f"http://192.168.178.118:5000/les/{les}")
+    img = qrcode.make(f"http://127.0.0.1:5000/les/{les}")
     img.save('static/qr.png')
     img = url_for('static', filename='qr.png')
     return render_template('qrcode.html', img=img, test=test, les=les)
