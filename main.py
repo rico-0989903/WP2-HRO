@@ -52,7 +52,7 @@ class LesInschrijving(db.Model):
     docent_id = db.Column(db.Integer, db.ForeignKey('docent.docent_id'), nullable=False)
     les_id = db.Column(db.Integer, db.ForeignKey('les.les_id'), nullable=False)
     aanwezigheid_check = db.Column(db.Integer, nullable=False)
-    afwezigheid_rede = db.Column(db.Column.String(250), nullable=True)
+    afwezigheid_rede = db.Column(db.Column.String(200), nullable=True)
 
 
 class ProductSchema(ma.Schema):
