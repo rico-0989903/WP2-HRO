@@ -10,7 +10,7 @@ app = Flask(__name__)
 
 basedir = os.path.abspath(os.path.dirname(__name__))
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///'+os.path.join(basedir, 'db.sqlite')
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///'+os.path.join(basedir, 'hro.sqlite')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
@@ -24,6 +24,36 @@ class aanwezig(db.Model):
     def __init__(self, naam, studentnummer):
         self.naam = naam
         self.studentnummer = studentnummer
+
+
+class Student(db.Model):
+    studentnummer = db.Column(db.Integer, primary_key=True, unique=True)
+    naam = db.Column(db.String(150), nullable=False)
+
+class Docent(db.Model):
+    docent_id = db.Column(db.Integer, primary_key=True, unique=True)
+    naam = db.Column(db.String(150), nullable=False)
+
+class Klas(db.Model):
+    klascode = db.Column(db.String(150), primary_key=True, nullable=False)
+
+class Les(db.Model):
+    les_id = db.Column(db.Integer, primary_key=True, nullable=False)
+    vak = db.Column(db.String(150), nullable=False)
+    datum = db.Column(db.DateTime, nullable=False)
+
+class KlasInschrijving(db.Model):
+    studentnummer = db.Column(db.Integer, db.ForeignKey('student.studentnummer'), nullable=False)
+    klascode = db.Column(db.Integer, db.ForeignKey('klas.klascode'), nullable=False)
+
+class LesInschrijving(db.Model):
+    id = db.Column(db.Integer, primary_key=True, nullable=False, unique=True)
+    studentnummer = db.Column(db.Integer, db.ForeignKey('student.studentnummer'), nullable=False)
+    docent_id = db.Column(db.Integer, db.ForeignKey('docent.docent_id'), nullable=False)
+    les_id = db.Column(db.Integer, db.ForeignKey('les.les_id'), nullable=False)
+    aanwezigheid_check = db.Column(db.Integer, nullable=False)
+    afwezigheid_rede = db.Column(db.Column.String(250), nullable=True)
+
 
 class ProductSchema(ma.Schema):
     class Meta:
