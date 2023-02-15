@@ -29,8 +29,8 @@ class ProductSchema(ma.Schema):
     class Meta:
         fields = ('id', 'naam', 'studentnummer')
 
-product_schema = ProductSchema()
-products_schema = ProductSchema(many=True)
+student_schema = ProductSchema()
+students_schema = ProductSchema(many=True)
 
 @app.route("/")
 def index():
@@ -64,7 +64,7 @@ def aanwezigheid(les):
 @app.route("/test", methods = ['POST','GET'])
 def test():
     studenten = aanwezig.query.all()
-    result = products_schema.dump(studenten)
+    result = students_schema.dump(studenten)
     return jsonify(result)
 
 @app.route("/data", methods = ['POST', 'GET'])
