@@ -81,3 +81,49 @@ main{
     visibility: visible;
     opacity: 1;
 }
+
+.klassen{
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: 2rem;
+}
+
+.klas{
+    width: 20rem;
+    height: 20rem;
+    background-color: rgb(54, 54, 54);
+    margin: 1rem;
+    border-radius: 1rem;
+    box-shadow: 1px 1px 5px black;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    transition: 400ms ease;
+    cursor: pointer;
+    color: white;
+}
+
+.lessen{
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: 2rem;
+}
+
+.les{
+    width: 20rem;
+    height: 20rem;
+    background-color: rgb(54, 54, 54);
+    margin: 1rem;
+    border-radius: 1rem;
+    box-shadow: 1px 1px 5px black;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    transition: 400ms ease;
+    cursor: pointer;
+    color: white;
+}
