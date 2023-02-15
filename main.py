@@ -4,6 +4,7 @@ import qrcode
 from flask import Flask, render_template, jsonify, request, url_for, make_response
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
+from sqlalchemy import update
 
 
 app = Flask(__name__)
@@ -20,14 +21,16 @@ class aanwezig(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     naam = db.Column(db.String(30), unique=True, nullable=False)
     studentnummer = db.Column(db.Integer, unique=True, nullable=False)
+    aanwezigheid = db.Column(db.String(8), nullable=False)
 
-    def __init__(self, naam, studentnummer):
+    def __init__(self, naam, studentnummer, aanwezigheid):
         self.naam = naam
         self.studentnummer = studentnummer
+        self.aanwezigheid = aanwezigheid
 
 class ProductSchema(ma.Schema):
     class Meta:
-        fields = ('id', 'naam', 'studentnummer')
+        fields = ('id', 'naam', 'studentnummer', 'aanwezigheid')
 
 student_schema = ProductSchema()
 students_schema = ProductSchema(many=True)
@@ -61,16 +64,17 @@ def aanwezigheid(les):
 
 @app.route("/test", methods = ['POST','GET'])
 def test():
-    studenten = aanwezig.query.all()
-    result = students_schema.dump(studenten)
+    studenten = aanwezig.query.order_by(aanwezig.aanwezigheid).all()
+    result= students_schema.dump(studenten)
     return jsonify(result)
 
-@app.route("/data", methods = ['POST', 'GET'])
+@app.route("/data", methods = ['POST', 'GET', 'PUT'])
 def data():
-    data = aanwezig(naam=request.json['naam'], studentnummer=request.json['studentnummer'])
-    db.session.add(data)
+    naam = request.json['naam']
+    data = aanwezig.query.filter_by(naam = naam).first()
+    print(data)
+    data.aanwezigheid=request.json['aanwezigheid']
     db.session.commit()
-    return ProductSchema.jsonify(data)  
-
+    return jsonify("Gelukt")
 if __name__ == '__main__':
     app.run(host="localhost", debug=True)
