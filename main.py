@@ -7,8 +7,6 @@ from flask_marshmallow import Marshmallow
 
 
 app = Flask(__name__)
-# MarkO: This is required for clients running on different protocol/DNS/port numbers.
-# I have a presentation on CORS if you need to know more.
 
 basedir = os.path.abspath(os.path.dirname(__name__))
 
@@ -77,4 +75,4 @@ def data():
     return ProductSchema.jsonify(data)  
 
 if __name__ == '__main__':
-    app.run(host="192.168.178.118", debug=True)
+    app.run(host="localhost", debug=True)
