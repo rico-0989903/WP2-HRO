@@ -127,3 +127,33 @@ main{
     cursor: pointer;
     color: white;
 }
+
+p {
+    font-family: monospace;
+    font-size: 1rem;
+    color: white;
+}
+
+h1 {
+    font-family: monospace;
+    font-size: 1.5rem;
+    color: white;
+}
+
+tr {
+    font-family: monospace;
+    font-size: 1rem;
+    color: white;
+}
+
+th {
+    font-family: monospace;
+    font-size: 1rem;
+    color: white;
+}
+
+label {
+    font-family: monospace;
+    font-size: 1rem;
+    color: white;
+}
