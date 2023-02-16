@@ -16,36 +16,34 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 ma = Marshmallow(app)
 
+app.app_context().push()
 
 #Database models
-class aanwezig(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    naam = db.Column(db.String(30), unique=True, nullable=False)
-    studentnummer = db.Column(db.Integer, unique=True, nullable=False)
-
-    def __init__(self, naam, studentnummer):
-        self.naam = naam
-        self.studentnummer = studentnummer
-
 class Student(db.Model):
     studentnummer = db.Column(db.Integer, primary_key=True, unique=True)
     naam = db.Column(db.String(150), nullable=False)
+    klasinschrijvingen = db.relationship('KlasInschrijving', backref='klascode', lazy=True)
+    lesinschrijving = db.relationship('LesInschrijving', backref='inschrijving', lazy=True)
 
 class Docent(db.Model):
     docent_id = db.Column(db.Integer, primary_key=True, unique=True)
     naam = db.Column(db.String(150), nullable=False)
+    lesinschrijvingen = db.relationship('LesInschrijving', backref='inschrijving', lazy=True)
 
 class Klas(db.Model):
     klascode = db.Column(db.String(150), primary_key=True, nullable=False)
+    slc_docent = db.Column(db.String(150))
+    klasinschrijvingen = db.relationship('KlasInschrijving', backref='studenten', lazy=True)
 
 class Les(db.Model):
     les_id = db.Column(db.Integer, primary_key=True, nullable=False)
     vak = db.Column(db.String(150), nullable=False)
     datum = db.Column(db.DateTime, nullable=False)
+    lesinschrijvingen = db.relationship('LesInschrijving', backref='inschrijving', lazy=True)
 
 class KlasInschrijving(db.Model):
-    studentnummer = db.Column(db.Integer, db.ForeignKey('student.studentnummer'), nullable=False)
-    klascode = db.Column(db.Integer, db.ForeignKey('klas.klascode'), nullable=False)
+    studentnummer = db.Column(db.Integer, db.ForeignKey('student.studentnummer'), primary_key=True, nullable=False)
+    klascode = db.Column(db.Integer, db.ForeignKey('klas.klascode'), primary_key=True, nullable=False)
 
 class LesInschrijving(db.Model):
     id = db.Column(db.Integer, primary_key=True, nullable=False, unique=True)
@@ -53,13 +51,9 @@ class LesInschrijving(db.Model):
     docent_id = db.Column(db.Integer, db.ForeignKey('docent.docent_id'), nullable=False)
     les_id = db.Column(db.Integer, db.ForeignKey('les.les_id'), nullable=False)
     aanwezigheid_check = db.Column(db.Integer, nullable=False)
-    afwezigheid_rede = db.Column(db.Column.String(200), nullable=True)
+    afwezigheid_rede = db.Column(db.String(200), nullable=True)
 
 #Marshmellow schemas
-class ProductSchema(ma.Schema):
-    class Meta:
-        fields = ('id', 'naam', 'studentnummer')
-
 class StudentSchema(ma.Schema):
     class Meta:
         fields = ('studentnummer', 'naam')
@@ -70,7 +64,7 @@ class DocentSchema(ma.Schema):
 
 class KlasSchema(ma.Schema):
     class Meta:
-        fields = ('klascode')
+        fields = ('klascode', 'slc_docent')
 
 class LesSchema(ma.Schema):
     class Meta:
@@ -84,8 +78,6 @@ class LesInschrijvingSchema(ma.Schema):
     class Meta:
         fields = ('id', 'studentnummer', 'docent_id', 'les_id', 'aannwezigheid_check', 'afwezigheid_rede')
 
-student_schema = ProductSchema()
-students_schema = ProductSchema(many=True)
 
 @app.route("/")
 def index():
