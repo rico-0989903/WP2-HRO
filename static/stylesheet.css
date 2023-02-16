@@ -1,5 +1,5 @@
 body{
-    background-color: rgb(248, 245, 238);
+    background-color: rgb(255, 247, 234);
     margin: 0px;
 }
 main{
@@ -7,6 +7,8 @@ main{
     padding-left: 2rem;
     padding-top: 2rem;
 }
+
+
 #homebutton{
     position: relative;
     color: rgb(62, 219, 62);
