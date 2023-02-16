@@ -16,6 +16,8 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 ma = Marshmallow(app)
 
+
+#Database models
 class aanwezig(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     naam = db.Column(db.String(30), unique=True, nullable=False)
@@ -24,7 +26,6 @@ class aanwezig(db.Model):
     def __init__(self, naam, studentnummer):
         self.naam = naam
         self.studentnummer = studentnummer
-
 
 class Student(db.Model):
     studentnummer = db.Column(db.Integer, primary_key=True, unique=True)
@@ -54,10 +55,34 @@ class LesInschrijving(db.Model):
     aanwezigheid_check = db.Column(db.Integer, nullable=False)
     afwezigheid_rede = db.Column(db.Column.String(200), nullable=True)
 
-
+#Marshmellow schemas
 class ProductSchema(ma.Schema):
     class Meta:
         fields = ('id', 'naam', 'studentnummer')
+
+class StudentSchema(ma.Schema):
+    class Meta:
+        fields = ('studentnummer', 'naam')
+
+class DocentSchema(ma.Schema):
+    class Meta:
+        fields = ('docent_id', 'naam')
+
+class KlasSchema(ma.Schema):
+    class Meta:
+        fields = ('klascode')
+
+class LesSchema(ma.Schema):
+    class Meta:
+        fields = ('les_id', 'vak', 'datum')
+
+class KlasInschrijvingSchema(ma.Schema):
+    class Meta:
+        fields = ('studentnummer', 'klascode')
+
+class LesInschrijvingSchema(ma.Schema):
+    class Meta:
+        fields = ('id', 'studentnummer', 'docent_id', 'les_id', 'aannwezigheid_check', 'afwezigheid_rede')
 
 student_schema = ProductSchema()
 students_schema = ProductSchema(many=True)
