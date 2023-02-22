@@ -33,6 +33,9 @@ class Docent(db.Model):
     naam = db.Column(db.String(150), nullable=False)
     lesinschrijvingen = db.relationship('LesInschrijving', backref='inschrijving2', lazy=True)
 
+    def __init__(self, docent_id, naam):
+        self.docent_id = docent_id
+        self.naam = naam
 
 class Klas(db.Model):
     klascode = db.Column(db.String(150), primary_key=True, nullable=False)
@@ -87,6 +90,14 @@ class LesInschrijvingSchema(ma.Schema):
     aanwezigheid_check = fields.Integer()
     afwezigheid_rede = fields.String()
 
+student_schema = StudentSchema(many=True)
+docent_schema = DocentSchema(many=True)
+klas_schema = KlasSchema(many=True)
+les_schema = LesSchema(many=True)
+klasinschrijving_schema = KlasInschrijvingSchema(many=True)
+lesinschrijving_schema = LesInschrijvingSchema(many=True)
+
+
 
 @app.route("/")
 def index():
@@ -98,10 +109,13 @@ def lessen():
 
 @app.route("/docenten")
 def docenten():
+    return render_template('docenten.html')
+
+@app.route("/getdocenten", methods = ["GET"])
+def getdocenten():
     docenten = Docent.query.all()
-    result = DocentSchema.dump(docenten)
-    type(docenten)
-    return render_template('docenten.html', result = result)
+    result = docent_schema.dump(docenten)
+    return jsonify(result)
 
 @app.route("/klassen")
 def klassen():
