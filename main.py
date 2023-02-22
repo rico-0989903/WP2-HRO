@@ -1,11 +1,14 @@
 import os
 import sqlite3
 import qrcode
-from flask import Flask, render_template, jsonify, request, url_for, make_response
+from flask import Flask, render_template, jsonify, request, url_for, make_response, redirect
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
 from sqlalchemy import update
-
+from flask_login import UserMixin
+from wtforms import StringField, PasswordField, SubmitField
+from wtforms.validators import InputRequired, length, ValidationError
+from flask_wtf import FlaskForm
 
 app = Flask(__name__)
 
@@ -13,6 +16,7 @@ basedir = os.path.abspath(os.path.dirname(__name__))
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///'+os.path.join(basedir, 'hro.sqlite')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['SECRET_KEY'] = 'NoOneWillEverGuessMySecretKey'
 
 db = SQLAlchemy(app)
 ma = Marshmallow(app)
@@ -54,6 +58,11 @@ class LesInschrijving(db.Model):
     aanwezigheid_check = db.Column(db.Integer, nullable=False)
     afwezigheid_rede = db.Column(db.String(200), nullable=True)
 
+class gebruikers(db.Model, UserMixin):
+    user_id = db.Column(db.Integer, primary_key=True, nullable=False, unique=True)
+    username = db.Column(db.String(20), nullable=False, unique=True)
+    password = db.Column(db.String(80), nullable=False)
+
 #Marshmellow schemas
 class StudentSchema(ma.Schema):
     class Meta:
@@ -79,9 +88,60 @@ class LesInschrijvingSchema(ma.Schema):
     class Meta:
         fields = ('id', 'studentnummer', 'docent_id', 'les_id', 'aannwezigheid_check', 'afwezigheid_rede')
 
+class gebruikersSchema(ma.Schema):
+    class meta:
+        fields = ('gebruiker_id', 'username', 'password')
+
+
+class RegisterForm(FlaskForm):
+    username = StringField('username', validators=[InputRequired(), length(min=4, max=20)],
+    render_kw={"placeholder": "Username"})
+
+    password = PasswordField('password', validators=[InputRequired(), length(min=8, max=80)],
+    render_kw={"placeholder": "Password"})
+
+    email = StringField('email', validators=[InputRequired(), length(min=4, max=50)],
+    render_kw={"placeholder": "Email"})
+
+    submit = SubmitField('Sign Up')
+
+    def validate_username(self, username):
+        existing_user_username = gebruikers.query.filter_by(username=username.data).first()
+        if existing_user_username:
+            raise ValidationError('That username is taken. Please choose a different one.')
+
+class LoginForm(FlaskForm):
+    username = StringField('username', validators=[InputRequired(), length(min=4, max=20)],
+    render_kw={"placeholder": "Username"})
+
+    password = PasswordField('password', validators=[InputRequired(), length(min=8, max=80)],
+    render_kw={"placeholder": "Password"})
+
+    submit = SubmitField('Login')
 
 @app.route("/")
 def index():
+    return render_template('index.html')
+
+@app.route("/login" , methods=['GET', 'POST'])
+def login():
+    form = LoginForm()
+    return render_template('login.html', form=form)
+
+@app.route("/register", methods=['GET', 'POST'])
+def register():
+    form = RegisterForm()
+
+    if form.validate_on_submit():
+        new_user = gebruikers(username=form.username.data, password=form.password.data)
+        db.session.add(new_user)
+        db.session.commit()
+        return redirect(url_for('login'))
+
+    return render_template('register.html', form=form)
+
+@app.route("/home")
+def home():
     return render_template('home.html')
 
 @app.route("/lessen")
