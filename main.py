@@ -4,6 +4,7 @@ import qrcode
 from flask import Flask, render_template, jsonify, request, url_for, make_response, redirect
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
+from marshmallow import fields
 from sqlalchemy import update
 from flask_login import UserMixin
 from wtforms import StringField, PasswordField, SubmitField
@@ -27,13 +28,15 @@ app.app_context().push()
 class Student(db.Model):
     studentnummer = db.Column(db.Integer, primary_key=True, unique=True)
     naam = db.Column(db.String(150), nullable=False)
-    klasinschrijvingen = db.relationship('KlasInschrijving', backref='klascode', lazy=True)
-    lesinschrijving = db.relationship('LesInschrijving', backref='inschrijving', lazy=True)
+    klasinschrijvingen = db.relationship('KlasInschrijving', backref='klascodetest ', lazy=True)
+    lesinschrijvingen = db.relationship('LesInschrijving', backref='inschrijving1', lazy=True)
+
 
 class Docent(db.Model):
     docent_id = db.Column(db.Integer, primary_key=True, unique=True)
     naam = db.Column(db.String(150), nullable=False)
-    lesinschrijvingen = db.relationship('LesInschrijving', backref='inschrijving', lazy=True)
+    lesinschrijvingen = db.relationship('LesInschrijving', backref='inschrijving2', lazy=True)
+
 
 class Klas(db.Model):
     klascode = db.Column(db.String(150), primary_key=True, nullable=False)
@@ -44,7 +47,7 @@ class Les(db.Model):
     les_id = db.Column(db.Integer, primary_key=True, nullable=False)
     vak = db.Column(db.String(150), nullable=False)
     datum = db.Column(db.DateTime, nullable=False)
-    lesinschrijvingen = db.relationship('LesInschrijving', backref='inschrijving', lazy=True)
+    lesinschrijvingen = db.relationship('LesInschrijving', backref='inschrijving3', lazy=True)
 
 class KlasInschrijving(db.Model):
     studentnummer = db.Column(db.Integer, db.ForeignKey('student.studentnummer'), primary_key=True, nullable=False)
@@ -65,28 +68,33 @@ class gebruikers(db.Model, UserMixin):
 
 #Marshmellow schemas
 class StudentSchema(ma.Schema):
-    class Meta:
-        fields = ('studentnummer', 'naam')
+    studentnummer = fields.String()
+    naam = fields.String()
 
 class DocentSchema(ma.Schema):
-    class Meta:
-        fields = ('docent_id', 'naam')
+    docent_id = fields.Integer()
+    naam = fields.String()
 
 class KlasSchema(ma.Schema):
-    class Meta:
-        fields = ('klascode', 'slc_docent')
+    klascode = fields.String()
+    slc_docent = fields.String()
 
 class LesSchema(ma.Schema):
-    class Meta:
-        fields = ('les_id', 'vak', 'datum')
+    les_id = fields.Integer()
+    vak = fields.String()
+    datum = fields.DateTime()
 
 class KlasInschrijvingSchema(ma.Schema):
-    class Meta:
-        fields = ('studentnummer', 'klascode')
+    studentnummer = fields.Nested(StudentSchema)
+    klascode = fields.Nested(KlasSchema)
 
 class LesInschrijvingSchema(ma.Schema):
-    class Meta:
-        fields = ('id', 'studentnummer', 'docent_id', 'les_id', 'aannwezigheid_check', 'afwezigheid_rede')
+    id = fields.Integer()
+    studentnummer = fields.Nested(StudentSchema)
+    docent_id = fields.Nested(DocentSchema)
+    les_id = fields.Nested(LesSchema)
+    aanwezigheid_check = fields.Integer()
+    afwezigheid_rede = fields.String()
 
 class gebruikersSchema(ma.Schema):
     class meta:
@@ -150,7 +158,10 @@ def lessen():
 
 @app.route("/docenten")
 def docenten():
-    return render_template('docenten.html')
+    docenten = Docent.query.all()
+    result = DocentSchema.dump(docenten)
+    type(docenten)
+    return render_template('docenten.html', result = result)
 
 @app.route("/klassen")
 def klassen():

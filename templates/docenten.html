@@ -1,5 +1,12 @@
 {% extends "index.html" %}
 
 {% block docent %}
-            <p>Dit wordt het overzicht van de docenten</p>
+            <th>
+                <td>Docent</td>
+            </th>
+            <tbody>
+            {% for result in results%}
+                <td>{{result}}</td>
+            {% endfor %}
+            </tbody>
 {% endblock %}
