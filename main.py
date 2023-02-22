@@ -5,6 +5,7 @@ from flask import Flask, render_template, jsonify, request, url_for, make_respon
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
 from marshmallow import fields
+from sqlalchemy import update
 
 
 app = Flask(__name__)
@@ -87,28 +88,26 @@ class LesInschrijvingSchema(ma.Schema):
 
 @app.route("/")
 def index():
-    return render_template('index.html')
+    return render_template('home.html')
 
 @app.route("/lessen")
 def lessen():
-    return render_template('index.html')
+    return render_template('lessen.html')
 
 @app.route("/docenten")
 def docenten():
-    return render_template('index.html')
+    return render_template('docenten.html')
 
 @app.route("/klassen")
 def klassen():
-    
-    return render_template('index.html',)
+    return render_template('klassen.html')
 
 @app.route("/klas/<les>", methods = ['POST', 'GET'])
 def klas(les):
-    test = True
-    img = qrcode.make(f"http://192.168.178.118:5000/les/{les}")
+    img = qrcode.make(f"http://127.0.0.1:5000/les/{les}")
     img.save('static/qr.png')
     img = url_for('static', filename='qr.png')
-    return render_template('qrcode.html', img=img, test=test, les=les)
+    return render_template('qrcode.html', img=img, les=les)
 
 @app.route("/les/<les>")
 def aanwezigheid(les):
@@ -116,16 +115,18 @@ def aanwezigheid(les):
 
 @app.route("/test", methods = ['POST','GET'])
 def test():
-    studenten = aanwezig.query.all()
-    result = students_schema.dump(studenten)
+    studenten = aanwezig.query.order_by(aanwezig.aanwezigheid).all()
+    result= students_schema.dump(studenten)
     return jsonify(result)
 
-@app.route("/data", methods = ['POST', 'GET'])
+@app.route("/data", methods = ['POST', 'GET', 'PUT'])
 def data():
-    data = aanwezig(naam=request.json['naam'], studentnummer=request.json['studentnummer'])
-    db.session.add(data)
+    naam = request.json['naam']
+    data = aanwezig.query.filter_by(naam = naam).first()
+    print(data)
+    data.aanwezigheid=request.json['aanwezigheid']
     db.session.commit()
-    return ProductSchema.jsonify(data)  
+    return jsonify("Gelukt")
 
 if __name__ == '__main__':
     app.run(host="localhost", debug=True)

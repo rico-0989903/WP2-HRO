@@ -1,5 +1,5 @@
 body{
-    background-color: rgb(68, 68, 68);
+    background-color: rgb(255, 247, 234);
     margin: 0px;
 }
 main{
@@ -7,20 +7,24 @@ main{
     padding-left: 2rem;
     padding-top: 2rem;
 }
+
+
 #homebutton{
+    position: relative;
     color: rgb(62, 219, 62);
     font-size: 4rem;
     text-decoration: none;
     font-family: Impact;
+    top: -10px;
 }
 
 .navbar{
     width: 5rem;
     height: 100vh;
     position: fixed;
-    background-color: rgb(54, 54, 54);
+    background-color: rgb(110, 0, 28);
     box-shadow: 1px 1px 5px black;
-    padding-top: 6px;
+    
     
 }
 .navbar-nav{
@@ -30,17 +34,18 @@ main{
     display: flex;
     flex-direction: column;
     align-items: center;
-    height: 100%; 
-    
+    height: 100%;
+
 }
 
 .navbar-link{
-    color: rgb(62, 219, 62);
-    fill: rgb(0, 0, 0);
+    color: whitesmoke;
+    fill: whitesmoke;
     display: flex;
     align-items: center;
-    height: 4rem;
+    height: 6rem;
     text-decoration: none;
+    
 }
 
 .navbar-link svg {
@@ -57,6 +62,7 @@ main{
 }
 .nav-item{
     width: 100%;
+    box-shadow: 0px 4px 5px -2px darkred;
 }
 .nav-item:last-child{
     margin-top: auto;
@@ -71,7 +77,7 @@ main{
     transition: 400ms ease;
 }
 .navbar:hover .navbar-link{
-    fill: rgb(62, 219, 62);
+    fill: rgb(209, 0, 65);
     transition: 400ms ease-out;
 }
 .navbar:hover #homebutton{
@@ -81,3 +87,108 @@ main{
     visibility: visible;
     opacity: 1;
 }
+
+.klassen{
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: 2rem;
+}
+
+.klas{
+    width: 20rem;
+    height: 20rem;
+    background-color: rgb(110, 0, 28);
+    margin: 1rem;
+    border-radius: 1rem;
+    box-shadow: darkred;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    transition: 400ms ease;
+    cursor: pointer;
+    color: white;
+    font-weight: bold;
+}
+
+.lessen{
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: 2rem;
+}
+
+.les{
+    width: 20rem;
+    height: 20rem;
+    background-color: rgb(110, 0, 28);
+    margin: 1rem;
+    border-radius: 1rem;
+    box-shadow: darkred;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    transition: 400ms ease;
+    cursor: pointer;
+    color: white;
+    font-weight: bold;
+}
+
+h1 {
+    font-family: monospace;
+    font-size: 1.5rem;
+    color: darkslategray;
+    font-weight: bold;
+}
+
+tr {
+    font-family: monospace;
+    font-size: 1rem;
+    color: darkslategrey;
+    font-weight: bold;
+}
+
+th {
+    font-family: monospace;
+    font-size: 1rem;
+    color: darkslategrey;
+    font-weight: bold;
+}
+
+label {
+    font-family: monospace;
+    font-size: 1rem;
+    color : darkslategrey;
+    font-weight: bold;
+}
+
+p.klas {
+    font-family: monospace;
+    font-size: 1rem;
+    color: white;
+    font-weight: bold;
+}
+
+p.lessen {
+    font-family: monospace;
+    font-size: 1rem;
+    color: white;
+    font-weight: bold;
+}
+
+a {
+    font-family: monospace;
+    font-size: 1rem;
+    color: white;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+p {
+    font-family: monospace;
+    font-size: 1rem;
+    font-weight: bold;
+}
+

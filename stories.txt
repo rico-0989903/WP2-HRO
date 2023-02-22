@@ -1,0 +1,39 @@
+Must have
+
+Docent
+
+Als docent wil je een overzicht hebben van hoeveel en welke studenten er bij een bijeenkomst aanwezig of afwezig
+Als docent wil je een check-in kunnen sluiten
+Als docent wil je bij de check-in een vraag kunnen stellen
+Als docent wil je een overzichtsscherm met de antwoorden op de vragen
+Als docent wil je een bijeenkomst kunnen plannen en aangeven wie daarbij aanwezig moet zijn
+Als docent wil je de opkomst van de studenten bij al hun geplande bijeenkomsten kunnen inzien
+Als docent wil je makkelijk kunnen zien of een student zich aanwezig meld en wanneer hij dit doet
+Als docent wil je makkelijk de aanwezigheid van een specifieke student kunnen zien
+Als docent wil je dat het moeilijk is voor een student om je aanwezigheid te falsificeren
+
+Student
+
+Als student wil je makkelijk jouw aanwezigheid kunnen aangeven
+Als student wil je een overzicht met jouw ingeplande bijeenkomsten
+
+Beheerder
+
+Als beheerder wil je makkelijk studenten, docenten en klassen kunnen toevoegen
+Als beheerder wil je makkelijk studenten kunnen indelen in (mogelijk meerdere) klassen
+
+Could have
+
+Docent
+
+Als docent wil je jezelf kunnen registreren bij het aanwezigheidssysteem
+
+Beheerder
+
+Als beheerder wil je registraties kunnen goedkeuren of afwijzen
+
+Overig
+
+OpenAPI/swagger documentaties
+Sessions
+OpenAuth integratie
