@@ -1,5 +1,49 @@
 {% extends "index.html" %}
 
 {% block docent %}
-            <p>Dit wordt het overzicht van de docenten</p>
+<table>
+    <tr>
+        <th>ID</th>
+        <th>Docent</th>
+    </tr>
+    <tbody id="fillin">
+        
+    </tbody>
+</table>
+            <script>
+                const getdocenten = async () => {
+                    try {
+                        const response = await fetch('/getdocenten', {
+                            method: 'GET',
+                            headers: {
+                                'accept': 'application/json',
+                                'Content-Type': 'application/json'
+                            }
+                        });
+                        const data = await response.json();
+                        if (response.error) {
+                            console.log("Some error with fetching JSON from highscore server")
+                        } else if (!response.ok) {
+                            console.log("Some non-200 HTTP response code")
+                        } else {
+                            showdocenten(data)
+                        }
+                    } catch (error) {
+                        console.log(error);
+                    }
+                }
+                function showdocenten(data) {
+                    let tabel = document.getElementById("fillin")
+                    tabel.replaceChildren()
+                        data.forEach(function (naam) {
+                        tabel.innerHTML += `
+                        <tr>
+                            <td>${naam["docent_id"]}</td>
+                            <td>${naam["naam"]}</td>
+                        </tr>
+                        `
+                    })
+                }
+                getdocenten()
+            </script>
 {% endblock %}
