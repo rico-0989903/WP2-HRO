@@ -24,13 +24,15 @@ app.app_context().push()
 class Student(db.Model):
     studentnummer = db.Column(db.Integer, primary_key=True, unique=True)
     naam = db.Column(db.String(150), nullable=False)
-    klasinschrijvingen = db.relationship('KlasInschrijving', backref='klascode', lazy=True)
-    lesinschrijving = db.relationship('LesInschrijving', backref='inschrijving', lazy=True)
+    klasinschrijvingen = db.relationship('KlasInschrijving', backref='klascodetest ', lazy=True)
+    lesinschrijvingen = db.relationship('LesInschrijving', backref='inschrijving1', lazy=True)
+
 
 class Docent(db.Model):
     docent_id = db.Column(db.Integer, primary_key=True, unique=True)
     naam = db.Column(db.String(150), nullable=False)
-    lesinschrijvingen = db.relationship('LesInschrijving', backref='inschrijving', lazy=True)
+    lesinschrijvingen = db.relationship('LesInschrijving', backref='inschrijving2', lazy=True)
+
 
 class Klas(db.Model):
     klascode = db.Column(db.String(150), primary_key=True, nullable=False)
@@ -41,7 +43,7 @@ class Les(db.Model):
     les_id = db.Column(db.Integer, primary_key=True, nullable=False)
     vak = db.Column(db.String(150), nullable=False)
     datum = db.Column(db.DateTime, nullable=False)
-    lesinschrijvingen = db.relationship('LesInschrijving', backref='inschrijving', lazy=True)
+    lesinschrijvingen = db.relationship('LesInschrijving', backref='inschrijving3', lazy=True)
 
 class KlasInschrijving(db.Model):
     studentnummer = db.Column(db.Integer, db.ForeignKey('student.studentnummer'), primary_key=True, nullable=False)
@@ -96,7 +98,10 @@ def lessen():
 
 @app.route("/docenten")
 def docenten():
-    return render_template('docenten.html')
+    docenten = Docent.query.all()
+    result = DocentSchema.dump(docenten)
+    type(docenten)
+    return render_template('docenten.html', result = result)
 
 @app.route("/klassen")
 def klassen():
