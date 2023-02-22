@@ -4,6 +4,7 @@ import qrcode
 from flask import Flask, render_template, jsonify, request, url_for, make_response
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
+from marshmallow import fields
 from sqlalchemy import update
 
 
@@ -56,28 +57,33 @@ class LesInschrijving(db.Model):
 
 #Marshmellow schemas
 class StudentSchema(ma.Schema):
-    class Meta:
-        fields = ('studentnummer', 'naam')
+    studentnummer = fields.String()
+    naam = fields.String()
 
 class DocentSchema(ma.Schema):
-    class Meta:
-        fields = ('docent_id', 'naam')
+    docent_id = fields.Integer()
+    naam = fields.String()
 
 class KlasSchema(ma.Schema):
-    class Meta:
-        fields = ('klascode', 'slc_docent')
+    klascode = fields.String()
+    slc_docent = fields.String()
 
 class LesSchema(ma.Schema):
-    class Meta:
-        fields = ('les_id', 'vak', 'datum')
+    les_id = fields.Integer()
+    vak = fields.String()
+    datum = fields.DateTime()
 
 class KlasInschrijvingSchema(ma.Schema):
-    class Meta:
-        fields = ('studentnummer', 'klascode')
+    studentnummer = fields.Nested(StudentSchema)
+    klascode = fields.Nested(KlasSchema)
 
 class LesInschrijvingSchema(ma.Schema):
-    class Meta:
-        fields = ('id', 'studentnummer', 'docent_id', 'les_id', 'aannwezigheid_check', 'afwezigheid_rede')
+    id = fields.Integer()
+    studentnummer = fields.Nested(StudentSchema)
+    docent_id = fields.Nested(DocentSchema)
+    les_id = fields.Nested(LesSchema)
+    aanwezigheid_check = fields.Integer()
+    afwezigheid_rede = fields.String()
 
 
 @app.route("/")
