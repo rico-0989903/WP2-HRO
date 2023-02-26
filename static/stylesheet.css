@@ -203,6 +203,21 @@ p.lessen {
     text-align: center;
 }
 
+.lessonmaker{
+    margin-top: 15px;
+    border: 2px solid rgb(110, 0, 28);
+    border-radius: 5px;
+    background-color: rgb(110, 0, 28);
+    color: white;
+    text-align: center;
+}
+
+.addform{
+    border: 1px solid black(110, 0, 28);
+    border-radius: 5px; 
+    padding: 10px;
+}
+
 a {
     font-family: monospace;
     font-size: 1rem;
