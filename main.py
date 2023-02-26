@@ -126,7 +126,6 @@ def addlesson():
 def docenten():
     return render_template('docenten.html')
 
-
 @app.route("/getdocenten", methods = ["GET"])
 def getdocenten():
     docenten = Docent.query.all()
