@@ -1,6 +1,7 @@
 import os
 import sqlite3
 import qrcode
+from datetime import datetime
 from flask import Flask, render_template, jsonify, request, url_for, make_response
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
@@ -107,7 +108,21 @@ def index():
 def lessen():
     return render_template('lessen.html')
 
-@app.route("/docenten")
+@app.route("/getlessen", methods = ['GET'])
+def getlessen():
+    lessen = Les.query.all()
+    lesresult = les_schema.dump(lessen)
+    return jsonify(lesresult)
+
+@app.route("/addlesson", methods = ['POST'])
+def addlesson():
+    datetimeformat = '%Y-%m-%dT%H:%M'
+    print(f"Nieuwe les! Vak: {request.json['vak']}, Datum: {request.json['datum']}")
+    newlesson = Les(vak=request.json['vak'], datum=datetime.strptime(request.json['datum'], datetimeformat))
+    db.session.add(newlesson)
+    db.session.commit()
+
+@app.route("/docenten", methods = ['POST', 'GET'])
 def docenten():
     return render_template('docenten.html')
 

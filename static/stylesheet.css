@@ -18,6 +18,11 @@ main{
     top: -10px;
 }
 
+.docent_header{
+    display: flex;
+    justify-content: left;
+}
+
 .navbar{
     width: 5rem;
     height: 100vh;
@@ -142,6 +147,13 @@ h1 {
     font-weight: bold;
 }
 
+h2 {
+    font-family: monospace;
+    font-size: 1rem;
+    color: darkslategray;
+    font-weight: bold;
+}
+
 tr {
     font-family: monospace;
     font-size: 1rem;
@@ -185,6 +197,34 @@ p.lessen {
     font-size: 1rem;
     color: white;
     font-weight: bold;
+}
+
+.add_button{
+    margin-left: 60vw;
+    border: 2px solid rgb(110, 0, 28);
+    border-radius: 5px;
+    background-color: rgb(110, 0, 28);
+    color: white;
+    max-width: 50px;
+    max-height: 50px;
+    font-size: 32px;
+    flex-grow: 1;
+    text-align: center;
+}
+
+.lessonmaker{
+    margin-top: 15px;
+    border: 2px solid rgb(110, 0, 28);
+    border-radius: 5px;
+    background-color: rgb(110, 0, 28);
+    color: white;
+    text-align: center;
+}
+
+.addform{
+    border: 1px solid black(110, 0, 28);
+    border-radius: 5px; 
+    padding: 10px;
 }
 
 a {
