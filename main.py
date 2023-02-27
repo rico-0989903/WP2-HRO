@@ -164,14 +164,17 @@ def register():
     return render_template('register.html', form=form)
 
 @app.route("/home", methods=['GET', 'POST'])
+@login_required
 def home():
     return render_template('home.html')
 
 @app.route("/lessen")
+@login_required
 def lessen():
     return render_template('lessen.html')
 
 @app.route("/docenten")
+@login_required
 def docenten():
     docenten = Docent.query.all()
     result = DocentSchema.dump(docenten)
@@ -179,10 +182,12 @@ def docenten():
     return render_template('docenten.html', result = result)
 
 @app.route("/klassen")
+@login_required
 def klassen():
     return render_template('klassen.html')
 
 @app.route("/klas/<les>", methods = ['POST', 'GET'])
+@login_required
 def klas(les):
     img = qrcode.make(f"http://127.0.0.1:5000/les/{les}")
     img.save('static/qr.png')
@@ -190,16 +195,19 @@ def klas(les):
     return render_template('qrcode.html', img=img, les=les)
 
 @app.route("/les/<les>")
+@login_required
 def aanwezigheid(les):
     return render_template('form.html', les=les)
 
 @app.route("/test", methods = ['POST','GET'])
+@login_required
 def test():
     studenten = aanwezig.query.order_by(aanwezig.aanwezigheid).all()
     result= students_schema.dump(studenten)
     return jsonify(result)
 
 @app.route("/data", methods = ['POST', 'GET', 'PUT'])
+@login_required
 def data():
     naam = request.json['naam']
     data = aanwezig.query.filter_by(naam = naam).first()
