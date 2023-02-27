@@ -1,9 +1,11 @@
 import os
 import sqlite3
 import qrcode
+from datetime import datetime
 from flask import Flask, render_template, jsonify, request, url_for, make_response
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
+from marshmallow import fields
 from sqlalchemy import update
 
 
@@ -23,13 +25,18 @@ app.app_context().push()
 class Student(db.Model):
     studentnummer = db.Column(db.Integer, primary_key=True, unique=True)
     naam = db.Column(db.String(150), nullable=False)
-    klasinschrijvingen = db.relationship('KlasInschrijving', backref='klascode', lazy=True)
-    lesinschrijving = db.relationship('LesInschrijving', backref='inschrijving', lazy=True)
+    klasinschrijvingen = db.relationship('KlasInschrijving', backref='klascodetest ', lazy=True)
+    lesinschrijvingen = db.relationship('LesInschrijving', backref='inschrijving1', lazy=True)
+
 
 class Docent(db.Model):
     docent_id = db.Column(db.Integer, primary_key=True, unique=True)
     naam = db.Column(db.String(150), nullable=False)
-    lesinschrijvingen = db.relationship('LesInschrijving', backref='inschrijving', lazy=True)
+    lesinschrijvingen = db.relationship('LesInschrijving', backref='inschrijving2', lazy=True)
+
+    def __init__(self, docent_id, naam):
+        self.docent_id = docent_id
+        self.naam = naam
 
 class Klas(db.Model):
     klascode = db.Column(db.String(150), primary_key=True, nullable=False)
@@ -40,7 +47,7 @@ class Les(db.Model):
     les_id = db.Column(db.Integer, primary_key=True, nullable=False)
     vak = db.Column(db.String(150), nullable=False)
     datum = db.Column(db.DateTime, nullable=False)
-    lesinschrijvingen = db.relationship('LesInschrijving', backref='inschrijving', lazy=True)
+    lesinschrijvingen = db.relationship('LesInschrijving', backref='inschrijving3', lazy=True)
 
 class KlasInschrijving(db.Model):
     studentnummer = db.Column(db.Integer, db.ForeignKey('student.studentnummer'), primary_key=True, nullable=False)
@@ -56,28 +63,41 @@ class LesInschrijving(db.Model):
 
 #Marshmellow schemas
 class StudentSchema(ma.Schema):
-    class Meta:
-        fields = ('studentnummer', 'naam')
+    studentnummer = fields.String()
+    naam = fields.String()
 
 class DocentSchema(ma.Schema):
-    class Meta:
-        fields = ('docent_id', 'naam')
+    docent_id = fields.Integer()
+    naam = fields.String()
 
 class KlasSchema(ma.Schema):
-    class Meta:
-        fields = ('klascode', 'slc_docent')
+    klascode = fields.String()
+    slc_docent = fields.String()
 
 class LesSchema(ma.Schema):
-    class Meta:
-        fields = ('les_id', 'vak', 'datum')
+    les_id = fields.Integer()
+    vak = fields.String()
+    datum = fields.DateTime()
 
 class KlasInschrijvingSchema(ma.Schema):
-    class Meta:
-        fields = ('studentnummer', 'klascode')
+    studentnummer = fields.Nested(StudentSchema)
+    klascode = fields.Nested(KlasSchema)
 
 class LesInschrijvingSchema(ma.Schema):
-    class Meta:
-        fields = ('id', 'studentnummer', 'docent_id', 'les_id', 'aannwezigheid_check', 'afwezigheid_rede')
+    id = fields.Integer()
+    studentnummer = fields.Nested(StudentSchema)
+    docent_id = fields.Nested(DocentSchema)
+    les_id = fields.Nested(LesSchema)
+    aanwezigheid_check = fields.Integer()
+    afwezigheid_rede = fields.String()
+
+student_schema = StudentSchema(many=True)
+docent_schema = DocentSchema(many=True)
+klas_schema = KlasSchema(many=True)
+les_schema = LesSchema(many=True)
+klasinschrijving_schema = KlasInschrijvingSchema(many=True)
+lesinschrijving_schema = LesInschrijvingSchema(many=True)
+
 
 
 @app.route("/")
@@ -88,9 +108,29 @@ def index():
 def lessen():
     return render_template('lessen.html')
 
-@app.route("/docenten")
+@app.route("/getlessen", methods = ['GET'])
+def getlessen():
+    lessen = Les.query.all()
+    lesresult = les_schema.dump(lessen)
+    return jsonify(lesresult)
+
+@app.route("/addlesson", methods = ['POST'])
+def addlesson():
+    datetimeformat = '%Y-%m-%dT%H:%M'
+    print(f"Nieuwe les! Vak: {request.json['vak']}, Datum: {request.json['datum']}")
+    newlesson = Les(vak=request.json['vak'], datum=datetime.strptime(request.json['datum'], datetimeformat))
+    db.session.add(newlesson)
+    db.session.commit()
+
+@app.route("/docenten", methods = ['POST', 'GET'])
 def docenten():
     return render_template('docenten.html')
+
+@app.route("/getdocenten", methods = ["GET"])
+def getdocenten():
+    docenten = Docent.query.all()
+    result = docent_schema.dump(docenten)
+    return jsonify(result)
 
 @app.route("/klassen")
 def klassen():

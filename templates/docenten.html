@@ -1,5 +1,105 @@
 {% extends "index.html" %}
 
 {% block docent %}
-            <p>Dit wordt het overzicht van de docenten</p>
+    <h1>Dit wordt het overzicht van de docenten</h1>
+        <article class="docent_header">
+            <h2>Overzicht van uw lessen</h2>
+            <button class="add_button" id="add_lesson">+</button>
+        </article>
+        <article id="les_form" style="display: none;">
+            <div class="addform">
+                <p>Vak:</p>
+                <input type="text" id="vak">
+                <p>Tijdstip:</p>
+                <input type="datetime-local" id="tijdstip"><br>
+                <button id="newlesson" class="lessonmaker">Maak nieuwe les</button>
+            </div>
+        </article>
+        <table>
+            <thead>
+                <tr>
+                    <th>Vak</th>
+                    <th>Datum</th>
+                </tr>
+            </thead>
+            <tbody id="lessen">
+        
+            </tbody>
+        </table>
+
+
+    <script>
+        const fetch_scores = async () => {
+        try {
+            const response = await fetch('/getlessen', {
+                method: 'GET',
+                headers: {
+                    'accept': 'application/json',
+                    'Content-Type': 'application/json'
+                }
+            });
+            const data = await response.json();
+            console.log(data);
+            if (response.error) {
+                console.log("Some error with fetching JSON from highscore server")
+            } else if (!response.ok) {
+                console.log("Some non-200 HTTP response code")
+            } else {
+                set_lessen(data)
+            }
+        } catch (e) {
+            console.log("Some error with fetching JSON from highscore server: " + e)
+        }
+    }
+
+    function set_lessen(les) {
+        let lessen = document.getElementById("lessen")
+        lessen.replaceChildren()
+        les.forEach(function (student) {
+            lessen.innerHTML += `
+            <tr>
+                <td>${student["vak"]}</td>
+                <td>${student["datum"]}</td>
+            </tr>
+            `
+            })
+        }
+
+        const add_lesson = async () => {
+        try {
+            payload = {
+                "vak": $("#vak").val(),
+                "datum": $("#tijdstip").val(),
+            }
+
+        const response = await fetch("/addlesson", {
+            method: 'POST',
+            body: JSON.stringify(payload),
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        }).then(fetch_scores);
+        } catch (e) {
+            console.log("Some error with fetching JSON from highscore server: " + e)
+        }
+    }
+    
+    function show_form(){
+        let les_form = document.getElementById("les_form")
+        let add_lesson = document.getElementById("add_lesson")
+        if (les_form.style.display === "none"){
+            add_lesson.innerHTML = "-"
+            return les_form.style.display = "block"
+        } else{
+            add_lesson.innerHTML = "+"
+            return les_form.style.display = "none"
+        }
+    }
+    fetch_scores()
+    let interval_id = setInterval(fetch_scores, 2000)
+    document.getElementById("add_lesson").addEventListener("click", show_form)
+    document.getElementById("newlesson").addEventListener("click", add_lesson)
+    </script>
+
+            
 {% endblock %}
