@@ -8,15 +8,23 @@
     <title>Login</title>
 </head>
 <body>
+    <div class="log-in">
     <h1>Login</h1>
     <form method="post" action="">
         {{ form.hidden_tag()}}
+        <div class="form-username">
         {{ form.username }}
+        </div>
+        <div class="form-password">
         {{ form.password }}
+        </div>
+        <div class="form-submit">
         {{ form.submit }}
+        </div>
     </form>
+    </div>
 
-    <a href="{{ url_for('register') }}">Don't have an account? Register</a>
+    <a href="{{ url_for('register') }}">Don't have an account? Register!</a>
 
 </body>
 </html>

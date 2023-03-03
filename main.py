@@ -135,6 +135,7 @@ class LoginForm(FlaskForm):
                              InputRequired(), Length(min=8, max=80)], render_kw={"placeholder": "Password"})
 
     submit = SubmitField('Login')
+
 @app.route("/")
 def index():
     return render_template('index.html')
@@ -155,7 +156,7 @@ def login():
 @login_required
 def logout():
     logout_user()
-    return redirect(url_for('index'))
+    return redirect(url_for('login'))
 
 @app.route("/register", methods=['GET', 'POST'])
 def register():
@@ -170,7 +171,6 @@ def register():
     return render_template('register.html', form=form)
 
 @app.route("/home", methods=['GET', 'POST'])
-@login_required
 def home():
     return render_template('home.html')
 
