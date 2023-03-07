@@ -163,7 +163,7 @@ def login():
         else:
             error = "Invalid username or password"
             return render_template('login.html', form=form, error=error)
-
+        
     return render_template('login.html', form=form)
 
 @app.route('/logout')
@@ -185,7 +185,12 @@ def register():
 
 @app.route("/home", methods=['GET', 'POST'])
 def home():
-    return render_template('home.html')
+    username = session['user']
+    check_rights = gebruikers.query.filter_by(username=username).first()
+    if check_rights.rights == "True":
+        return render_template('home.html', rights = True)
+    else:
+        return render_template('home.html', rights = False)
 
 @app.route("/lessen")
 def lessen():
@@ -193,9 +198,6 @@ def lessen():
 
 @app.route("/docenten")
 def docenten():
-    docenten = Docent.query.all()
-    result = DocentSchema.dump(docenten)
-    type(docenten)
     return render_template('docenten.html', result = result)
 
 @app.route("/klassen")
