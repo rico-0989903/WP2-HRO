@@ -197,6 +197,11 @@ p {
     padding: 5px;
 }
 
+.register {
+    max-width: 200px;
+    padding: 5px;
+}
+
 .form-username {
     margin: 10px;
 }

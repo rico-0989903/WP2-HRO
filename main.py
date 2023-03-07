@@ -6,7 +6,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
 from marshmallow import fields
 from sqlalchemy import update
-from flask_login import UserMixin, LoginManager, login_user, login_required, logout_user, current_user
+from flask_login import UserMixin, LoginManager
 from wtforms import StringField, PasswordField, SubmitField
 from wtforms.validators import InputRequired, Length, ValidationError
 from flask_wtf import FlaskForm
@@ -27,7 +27,6 @@ app.app_context().push()
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
-
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -74,6 +73,7 @@ class gebruikers(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True, nullable=False, unique=True)
     username = db.Column(db.String(20), nullable=False, unique=True)
     password = db.Column(db.String(80), nullable=False)
+    rights = db.Column(db.String(20), nullable=False)
 
 #Marshmellow schemas
 class StudentSchema(ma.Schema):
@@ -107,7 +107,7 @@ class LesInschrijvingSchema(ma.Schema):
 
 class gebruikersSchema(ma.Schema):
     class meta:
-        fields = ('id', 'username', 'password')
+        fields = ('id', 'username', 'password', 'rights')
 
 
 class RegisterForm(FlaskForm):
@@ -136,12 +136,16 @@ class LoginForm(FlaskForm):
 
     submit = SubmitField('Login')
 
+@app.before_request
+def before_request():
+    if "user" not in session and request.endpoint not in ['login', 'register', 'static', 'index']:
+        return redirect(url_for('login'))
+
 @app.route("/")
 def index():
     if "user" in session:
         return redirect(url_for('home'))
     else:
-        session.pop('user', None)
         return redirect(url_for('login'))
 
 @app.route("/login" , methods=['GET', 'POST'])
@@ -153,6 +157,12 @@ def login():
             if user.password == form.password.data:
                 session['user'] = user.username
                 return redirect(url_for('home'))
+            else:
+                error = "Invalid username or password"
+                return render_template('login.html', form=form, error=error)
+        else:
+            error = "Invalid username or password"
+            return render_template('login.html', form=form, error=error)
 
     return render_template('login.html', form=form)
 
@@ -166,7 +176,7 @@ def register():
     form = RegisterForm()
 
     if form.validate_on_submit():
-        new_user = gebruikers(username=form.username.data, password=form.password.data)
+        new_user = gebruikers(username=form.username.data, password=form.password.data, rights="False")
         db.session.add(new_user)
         db.session.commit()
         return redirect(url_for('login'))
