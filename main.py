@@ -1,7 +1,7 @@
 import os
 import sqlite3
 import qrcode
-from flask import Flask, render_template, jsonify, request, url_for, make_response, redirect
+from flask import Flask, render_template, jsonify, request, url_for, make_response, redirect, session
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
 from marshmallow import fields
