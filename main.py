@@ -55,15 +55,21 @@ class Klas(db.Model):
     slc_docent = db.Column(db.String(150))
     klasinschrijvingen = db.relationship('KlasInschrijving', backref='studenten', lazy=True)
 
+class Vak(db.Model):
+    vak_id = db.Column(db.Integer, primary_key=True, nullable=False)
+    vak = db.Column(db.String(150), nullable=False)
+    les = db.relationship('Les', backref='vak1', lazy=True)
+
 class Les(db.Model):
     les_id = db.Column(db.Integer, primary_key=True, nullable=False)
-    vak = db.Column(db.String(150), nullable=False)
+    vak = db.Column(db.Integer, db.ForeignKey('vak.vak_id'), nullable=False)
     datum = db.Column(db.DateTime, nullable=False)
     lesinschrijvingen = db.relationship('LesInschrijving', backref='inschrijving3', lazy=True)
 
 class KlasInschrijving(db.Model):
-    studentnummer = db.Column(db.Integer, db.ForeignKey('student.studentnummer'), primary_key=True, nullable=False)
-    klascode = db.Column(db.Integer, db.ForeignKey('klas.klascode'), primary_key=True, nullable=False)
+    klasinschrijving_id = db.Column(db.Integer, primary_key=True, nullable=False)
+    studentnummer = db.Column(db.Integer, db.ForeignKey('student.studentnummer'), nullable=False)
+    klascode = db.Column(db.Integer, db.ForeignKey('klas.klascode'), nullable=False)
 
 class LesInschrijving(db.Model):
     id = db.Column(db.Integer, primary_key=True, nullable=False, unique=True)
@@ -92,12 +98,17 @@ class KlasSchema(ma.Schema):
     klascode = fields.String()
     slc_docent = fields.String()
 
+class VakSchema(ma.Schema):
+    vak_id = fields.Integer()
+    vak = fields.String()
+
 class LesSchema(ma.Schema):
     les_id = fields.Integer()
-    vak = fields.String()
+    vak_id = fields.Nested(VakSchema)
     datum = fields.DateTime()
 
 class KlasInschrijvingSchema(ma.Schema):
+    klasInschrijving_id = fields.Integer()
     studentnummer = fields.Nested(StudentSchema)
     klascode = fields.Nested(KlasSchema)
 
