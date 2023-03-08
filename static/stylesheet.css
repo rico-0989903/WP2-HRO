@@ -230,7 +230,7 @@ p.lessen {
 a {
     font-family: monospace;
     font-size: 1rem;
-    color: white;
+    color: darkslategrey;
     text-decoration: none;
     font-weight: bold;
 }
@@ -241,3 +241,24 @@ p {
     font-weight: bold;
 }
 
+.log-in {
+    max-width: 200px;
+    padding: 5px;
+}
+
+.register {
+    max-width: 200px;
+    padding: 5px;
+}
+
+.form-username {
+    margin: 10px;
+}
+
+.form-password {
+    margin: 10px;
+}
+
+.form-submit {
+    margin: 10px;
+}
