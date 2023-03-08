@@ -148,6 +148,7 @@ def index():
     else:
         return redirect(url_for('login'))
 
+
 @app.route("/login" , methods=['GET', 'POST'])
 def login():
     form = LoginForm()
@@ -156,6 +157,11 @@ def login():
         if user:
             if user.password == form.password.data:
                 session['user'] = user.username
+                check_rights = gebruikers.query.filter_by(username=user.username).first()
+                if check_rights.rights == "True":
+                    session['rights'] = True
+                else:
+                    session['rights'] = False
                 return redirect(url_for('home'))
             else:
                 error = "Invalid username or password"
@@ -183,14 +189,9 @@ def register():
 
     return render_template('register.html', form=form)
 
-@app.route("/home", methods=['GET', 'POST'])
+@app.route("/home")
 def home():
-    username = session['user']
-    check_rights = gebruikers.query.filter_by(username=username).first()
-    if check_rights.rights == "True":
-        return render_template('home.html', rights = True)
-    else:
-        return render_template('home.html', rights = False)
+    return render_template('home.html')
 
 @app.route("/lessen")
 def lessen():
@@ -198,7 +199,7 @@ def lessen():
 
 @app.route("/docenten")
 def docenten():
-    return render_template('docenten.html', result = result)
+    return render_template('docenten.html')
 
 @app.route("/klassen")
 def klassen():
