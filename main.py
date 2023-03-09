@@ -1,12 +1,10 @@
 import os
-import sqlite3
 import qrcode
 from datetime import datetime
-from flask import Flask, render_template, jsonify, request, url_for, make_response, redirect, session
+from flask import Flask, render_template, jsonify, request, url_for, redirect, session
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
 from marshmallow import fields
-from sqlalchemy import update
 from flask_login import UserMixin, LoginManager
 from wtforms import StringField, PasswordField, SubmitField
 from wtforms.validators import InputRequired, Length, ValidationError
@@ -37,14 +35,14 @@ def load_user(user_id):
 class Student(db.Model):
     studentnummer = db.Column(db.Integer, primary_key=True, unique=True)
     naam = db.Column(db.String(150), nullable=False)
-    klasinschrijvingen = db.relationship('KlasInschrijving', backref='klascodetest ', lazy=True)
-    lesinschrijvingen = db.relationship('LesInschrijving', backref='inschrijving1', lazy=True)
+    klasinschrijvingen = db.relationship('KlasInschrijving', backref='student', lazy='dynamic')
+    lesinschrijvingen = db.relationship('LesInschrijving', backref='student', lazy=True)
 
 
 class Docent(db.Model):
     docent_id = db.Column(db.Integer, primary_key=True, unique=True)
     naam = db.Column(db.String(150), nullable=False)
-    lesinschrijvingen = db.relationship('LesInschrijving', backref='inschrijving2', lazy=True)
+    lesinschrijvingen = db.relationship('LesInschrijving', backref='docent', lazy=True)
 
     def __init__(self, docent_id, naam):
         self.docent_id = docent_id
@@ -53,7 +51,7 @@ class Docent(db.Model):
 class Klas(db.Model):
     klascode = db.Column(db.String(150), primary_key=True, nullable=False)
     slc_docent = db.Column(db.String(150))
-    klasinschrijvingen = db.relationship('KlasInschrijving', backref='studenten', lazy=True)
+    klasinschrijvingen = db.relationship('KlasInschrijving', backref='klas', lazy=True)
 
 class Vak(db.Model):
     vak_id = db.Column(db.Integer, primary_key=True, nullable=False)
@@ -62,9 +60,9 @@ class Vak(db.Model):
 
 class Les(db.Model):
     les_id = db.Column(db.Integer, primary_key=True, nullable=False)
-    vak = db.Column(db.Integer, db.ForeignKey('vak.vak_id'), nullable=False)
+    vak_id = db.Column(db.Integer, db.ForeignKey('vak.vak_id'), nullable=False)
     datum = db.Column(db.DateTime, nullable=False)
-    lesinschrijvingen = db.relationship('LesInschrijving', backref='inschrijving3', lazy=True)
+    lesinschrijvingen = db.relationship('LesInschrijving', backref='les', lazy=True)
 
 class KlasInschrijving(db.Model):
     klasinschrijving_id = db.Column(db.Integer, primary_key=True, nullable=False)
@@ -248,8 +246,19 @@ def getdocenten():
 def klassen():
     return render_template('klassen.html')
 
-@app.route("/klas/<les>", methods = ['POST', 'GET'])
-def klas(les):
+
+
+@app.route("/klas/<klas>/studenten", methods = ['POST', 'GET'])
+def klas(klas):
+    tests = KlasInschrijving.query.filter_by(klascode = str(klas)).all()
+    studenten = []
+    for test in tests:
+        case = {"naam": test.student.naam, "studentnummer": test.student.studentnummer}
+        studenten.append(case)
+    return jsonify(studenten)
+
+@app.route("/lessen/<les>", methods = ['POST', 'GET'])
+def les(les):
     img = qrcode.make(f"http://127.0.0.1:5000/les/{les}")
     img.save('static/qr.png')
     img = url_for('static', filename='qr.png')
