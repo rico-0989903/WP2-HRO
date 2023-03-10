@@ -216,57 +216,85 @@ def lessen():
 
 @app.route("/getlessen", methods = ['GET'])
 def getlessen():
-    lessen = Les.query.all()
-    lesresult = les_schema.dump(lessen)
-    return jsonify(lesresult)
+    if session['rights'] == True:
+        lessen = Les.query.all()
+        lesresult = les_schema.dump(lessen)
+        return jsonify(lesresult)
+    else:
+        return "Jij hebt geen recht"
 
 @app.route("/addlesson", methods = ['POST'])
 def addlesson():
-    datetimeformat = '%Y-%m-%dT%H:%M'
-    print(f"Nieuwe les! Vak: {request.json['vak']}, Datum: {request.json['datum']}")
-    newlesson = Les(vak=request.json['vak'], datum=datetime.strptime(request.json['datum'], datetimeformat))
-    db.session.add(newlesson)
-    db.session.commit()
+    if session['rights'] == True:
+        datetimeformat = '%Y-%m-%dT%H:%M'
+        print(f"Nieuwe les! Vak: {request.json['vak']}, Datum: {request.json['datum']}")
+        newlesson = Les(vak=request.json['vak'], datum=datetime.strptime(request.json['datum'], datetimeformat))
+        db.session.add(newlesson)
+        db.session.commit()
+        return "Les toegevoegd"
+    else:
+        return "Jij hebt geen recht"
 
 @app.route("/docenten", methods = ['POST', 'GET'])
 def docenten():
-    return render_template('docenten.html')
+    if session['rights'] == True:
+        return render_template('docenten.html')
+    else:
+        return "Jij hebt geen recht"
 
 @app.route("/getdocenten", methods = ["GET"])
 def getdocenten():
-    docenten = Docent.query.all()
-    result = docent_schema.dump(docenten)
-    return jsonify(result)
+    if session['rights'] == True:
+        docenten = Docent.query.all()
+        result = docent_schema.dump(docenten)
+        return jsonify(result)
+    else:
+        return "Jij hebt geen recht"
 
 @app.route("/klassen")
 def klassen():
-    return render_template('klassen.html')
-
+    if session['rights'] == True:
+        return render_template('klassen.html')
+    else:
+        return "Jij hebt geen recht"
+    
 @app.route("/klas/<les>", methods = ['POST', 'GET'])
 def klas(les):
-    img = qrcode.make(f"http://127.0.0.1:5000/les/{les}")
-    img.save('static/qr.png')
-    img = url_for('static', filename='qr.png')
-    return render_template('qrcode.html', img=img, les=les)
+    if session['rights'] == True:
+        img = qrcode.make(f"http://127.0.0.1:5000/les/{les}")
+        img.save('static/qr.png')
+        img = url_for('static', filename='qr.png')
+        return render_template('qrcode.html', img=img, les=les)
+    else:
+        return "Jij hebt geen recht"
 
 @app.route("/les/<les>")
 def aanwezigheid(les):
-    return render_template('form.html', les=les)
+    if session['rights'] == True:
+        return render_template('form.html', les=les)
+    else:
+        return "Jij hebt geen recht"
 
 @app.route("/test", methods = ['POST','GET'])
 def test():
-    studenten = aanwezig.query.order_by(aanwezig.aanwezigheid).all()
-    result= students_schema.dump(studenten)
-    return jsonify(result)
+    if session['rights'] == True:
+        studenten = aanwezig.query.order_by(aanwezig.aanwezigheid).all()
+        result= students_schema.dump(studenten)
+        return jsonify(result)
+    else:
+        return "Jij hebt geen recht"
 
 @app.route("/data", methods = ['POST', 'GET', 'PUT'])
 def data():
-    naam = request.json['naam']
-    data = aanwezig.query.filter_by(naam = naam).first()
-    print(data)
-    data.aanwezigheid=request.json['aanwezigheid']
-    db.session.commit()
-    return jsonify("Gelukt")
+    if session['rights'] == True:
+        naam = request.json['naam']
+        data = aanwezig.query.filter_by(naam = naam).first()
+        print(data)
+        data.aanwezigheid=request.json['aanwezigheid']
+        db.session.commit()
+        return jsonify("Gelukt")
+    else:
+        return "Jij hebt geen recht"
 
 if __name__ == '__main__':
     app.run(host="localhost", debug=True)
