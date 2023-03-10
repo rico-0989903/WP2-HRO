@@ -11,6 +11,7 @@ from flask_login import UserMixin, LoginManager
 from wtforms import StringField, PasswordField, SubmitField
 from wtforms.validators import InputRequired, Length, ValidationError
 from flask_wtf import FlaskForm
+from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)
 
@@ -124,7 +125,7 @@ class gebruikersSchema(ma.Schema):
 
 class RegisterForm(FlaskForm):
     username = StringField(validators=[
-                           InputRequired(), Length(min=5, max=20)], render_kw={"placeholder": "Username"})
+                           InputRequired(), Length(min=4, max=20)], render_kw={"placeholder": "Username"})
 
     password = PasswordField(validators=[
                              InputRequired(), Length(min=8, max=80)], render_kw={"placeholder": "Password"})
@@ -141,7 +142,7 @@ class RegisterForm(FlaskForm):
 
 class LoginForm(FlaskForm):
     username = StringField(validators=[
-                           InputRequired(), Length(min=5, max=20)], render_kw={"placeholder": "Username"})
+                           InputRequired(), Length(min=4, max=20)], render_kw={"placeholder": "Username"})
 
     password = PasswordField(validators=[
                              InputRequired(), Length(min=8, max=80)], render_kw={"placeholder": "Password"})
@@ -167,7 +168,7 @@ def login():
     if form.validate_on_submit():
         user = gebruikers.query.filter_by(username=form.username.data).first()
         if user:
-            if user.password == form.password.data:
+            if check_password_hash(user.password, form.password.data):
                 session['user'] = user.username
                 check_rights = gebruikers.query.filter_by(username=user.username).first()
                 if check_rights.rights == "True":
@@ -194,7 +195,8 @@ def register():
     form = RegisterForm()
 
     if form.validate_on_submit():
-        new_user = gebruikers(username=form.username.data, password=form.password.data, rights="False")
+        hashed_password = generate_password_hash(form.password.data, method='sha256')
+        new_user = gebruikers(username=form.username.data, password=hashed_password, rights="False")
         db.session.add(new_user)
         db.session.commit()
         return redirect(url_for('login'))
@@ -207,7 +209,10 @@ def home():
 
 @app.route("/lessen")
 def lessen():
-    return render_template('lessen.html')
+    if session['rights'] == True:
+        return render_template('lessen.html')
+    else:
+        return "Jij hebt geen recht" 
 
 @app.route("/getlessen", methods = ['GET'])
 def getlessen():
