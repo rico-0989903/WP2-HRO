@@ -124,7 +124,6 @@ klasinschrijving_schema = KlasInschrijvingSchema(many=True)
 lesinschrijving_schema = LesInschrijvingSchema(many=True)
 gebruikers_schema = gebruikersSchema(many=True)
 
-
 class RegisterForm(FlaskForm):
     username = StringField(validators=[
                            InputRequired(), Length(min=4, max=20)], render_kw={"placeholder": "Username"})
@@ -145,7 +144,7 @@ class LoginForm(FlaskForm):
 
 @app.before_request
 def before_request():
-    if "user" not in session and request.endpoint not in ['login', 'register', 'static', 'index']:
+    if "user" and "rights" not in session and request.endpoint not in ['login', 'register', 'static', 'index']:
         return redirect(url_for('login'))
 
 @app.route("/")
@@ -203,6 +202,7 @@ def login():
 @app.route('/logout')
 def logout():
     session.pop('user', None)
+    session.pop('rights', None)
     return redirect(url_for('index'))
 
 @app.route("/home")
