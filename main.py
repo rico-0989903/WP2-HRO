@@ -9,7 +9,7 @@ from marshmallow import fields
 from sqlalchemy import update
 from flask_login import UserMixin, LoginManager
 from wtforms import StringField, PasswordField, SubmitField
-from wtforms.validators import InputRequired, Length, ValidationError
+from wtforms.validators import InputRequired, Length
 from flask_wtf import FlaskForm
 from werkzeug.security import generate_password_hash, check_password_hash
 
@@ -76,8 +76,8 @@ class LesInschrijving(db.Model):
 
 class gebruikers(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True, nullable=False, unique=True)
-    username = db.Column(db.String(20), nullable=False, unique=True)
-    password = db.Column(db.String(80), nullable=False)
+    username = db.Column(db.String(20), db.ForeignKey('student.studentnummer') ,nullable=False, unique=True)
+    password = db.Column(db.String(150), nullable=False)
     rights = db.Column(db.String(20), nullable=False)
 
 #Marshmellow schemas
@@ -110,17 +110,19 @@ class LesInschrijvingSchema(ma.Schema):
     aanwezigheid_check = fields.Integer()
     afwezigheid_rede = fields.String()
 
+class gebruikersSchema(ma.Schema):
+    id = fields.Integer()
+    username = fields.Nested(StudentSchema)
+    password = fields.String()
+    rights = fields.String()
+
 student_schema = StudentSchema(many=True)
 docent_schema = DocentSchema(many=True)
 klas_schema = KlasSchema(many=True)
 les_schema = LesSchema(many=True)
 klasinschrijving_schema = KlasInschrijvingSchema(many=True)
 lesinschrijving_schema = LesInschrijvingSchema(many=True)
-
-
-class gebruikersSchema(ma.Schema):
-    class meta:
-        fields = ('id', 'username', 'password', 'rights')
+gebruikers_schema = gebruikersSchema(many=True)
 
 
 class RegisterForm(FlaskForm):
@@ -128,24 +130,16 @@ class RegisterForm(FlaskForm):
                            InputRequired(), Length(min=4, max=20)], render_kw={"placeholder": "Username"})
 
     password = PasswordField(validators=[
-                             InputRequired(), Length(min=8, max=80)], render_kw={"placeholder": "Password"})
+                             InputRequired(), Length(min=8, max=150)], render_kw={"placeholder": "Password"})
 
     submit = SubmitField('Register')
-
-    def validate_username(self, username):
-        existing_user_username = gebruikers.query.filter_by(
-            username=username.data).first()
-        if existing_user_username:
-            raise ValidationError(
-                'That username already exists. Please choose a different one.')
-
 
 class LoginForm(FlaskForm):
     username = StringField(validators=[
                            InputRequired(), Length(min=4, max=20)], render_kw={"placeholder": "Username"})
 
     password = PasswordField(validators=[
-                             InputRequired(), Length(min=8, max=80)], render_kw={"placeholder": "Password"})
+                             InputRequired(), Length(min=8, max=150)], render_kw={"placeholder": "Password"})
 
     submit = SubmitField('Login')
 
@@ -161,6 +155,27 @@ def index():
     else:
         return redirect(url_for('login'))
 
+@app.route("/register", methods=['GET', 'POST'])
+def register():
+    form = RegisterForm()
+    if form.validate_on_submit():
+        existing_user = gebruikers.query.filter_by(username=form.username.data).first()
+        user = Student.query.filter_by(studentnummer=form.username.data).first()
+        if existing_user is None:
+            if user:
+                hashed_password = generate_password_hash(form.password.data, method='sha256')
+                new_user = gebruikers(username=form.username.data, password=hashed_password, rights="False")
+                db.session.add(new_user)
+                db.session.commit()
+                return redirect(url_for('login'))
+            else:
+                error = "No valid Studentnummer"
+                return render_template('register.html', form=form, error=error)
+        else:
+            error = "Username already exists"
+            return render_template('register.html', form=form, error=error)
+        
+    return render_template('register.html', form=form)
 
 @app.route("/login" , methods=['GET', 'POST'])
 def login():
@@ -189,19 +204,6 @@ def login():
 def logout():
     session.pop('user', None)
     return redirect(url_for('index'))
-
-@app.route("/register", methods=['GET', 'POST'])
-def register():
-    form = RegisterForm()
-
-    if form.validate_on_submit():
-        hashed_password = generate_password_hash(form.password.data, method='sha256')
-        new_user = gebruikers(username=form.username.data, password=hashed_password, rights="False")
-        db.session.add(new_user)
-        db.session.commit()
-        return redirect(url_for('login'))
-
-    return render_template('register.html', form=form)
 
 @app.route("/home")
 def home():
