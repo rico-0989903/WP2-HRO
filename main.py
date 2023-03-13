@@ -248,8 +248,12 @@ def klassen():
 
 
 
-@app.route("/klas/<klas>/studenten", methods = ['POST', 'GET'])
+@app.route("/klas/<klas>/studenten")
 def klas(klas):
+    return render_template('studenten.html', klas=klas)
+
+@app.route("/<klas>/getstudenten", methods = ['POST', 'GET'])
+def getstudenten(klas):
     tests = KlasInschrijving.query.filter_by(klascode = str(klas)).all()
     studenten = []
     for test in tests:

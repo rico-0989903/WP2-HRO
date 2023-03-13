@@ -4,6 +4,7 @@ body{
 }
 main{
     margin-left: 5rem;
+    padding: 1rem;
 }
 
 
@@ -47,7 +48,7 @@ main{
     align-items: center;
     height: 6rem;
     text-decoration: none;
-    
+    overflow: hidden;
 }
 
 .navbar-link svg {
@@ -161,7 +162,7 @@ h1 {
 h2 {
     font-family: monospace;
     font-size: 1rem;
-    color: white;
+    color: black;
     font-weight: bold;
 }
 
@@ -172,8 +173,9 @@ tr {
     font-weight: bold;
 }
 table{
-
+    background-color: rgb(255, 247, 234);
     border-spacing: 0px;
+    box-shadow: 0px 0px 5px 1px black;
 }
 
 th {
