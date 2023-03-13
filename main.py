@@ -1,12 +1,10 @@
 import os
-import sqlite3
 import qrcode
 from datetime import datetime
-from flask import Flask, render_template, jsonify, request, url_for, make_response, redirect, session
+from flask import Flask, render_template, jsonify, request, url_for, redirect, session
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
 from marshmallow import fields
-from sqlalchemy import update
 from flask_login import UserMixin, LoginManager
 from wtforms import StringField, PasswordField, SubmitField
 from wtforms.validators import InputRequired, Length
@@ -38,14 +36,14 @@ def load_user(user_id):
 class Student(db.Model):
     studentnummer = db.Column(db.Integer, primary_key=True, unique=True)
     naam = db.Column(db.String(150), nullable=False)
-    klasinschrijvingen = db.relationship('KlasInschrijving', backref='klascodetest ', lazy=True)
-    lesinschrijvingen = db.relationship('LesInschrijving', backref='inschrijving1', lazy=True)
+    klasinschrijvingen = db.relationship('KlasInschrijving', backref='student', lazy='dynamic')
+    lesinschrijvingen = db.relationship('LesInschrijving', backref='student', lazy=True)
 
 
 class Docent(db.Model):
     docent_id = db.Column(db.Integer, primary_key=True, unique=True)
     naam = db.Column(db.String(150), nullable=False)
-    lesinschrijvingen = db.relationship('LesInschrijving', backref='inschrijving2', lazy=True)
+    lesinschrijvingen = db.relationship('LesInschrijving', backref='docent', lazy=True)
 
     def __init__(self, docent_id, naam):
         self.docent_id = docent_id
@@ -54,17 +52,23 @@ class Docent(db.Model):
 class Klas(db.Model):
     klascode = db.Column(db.String(150), primary_key=True, nullable=False)
     slc_docent = db.Column(db.String(150))
-    klasinschrijvingen = db.relationship('KlasInschrijving', backref='studenten', lazy=True)
+    klasinschrijvingen = db.relationship('KlasInschrijving', backref='klas', lazy=True)
+
+class Vak(db.Model):
+    vak_id = db.Column(db.Integer, primary_key=True, nullable=False)
+    vak = db.Column(db.String(150), nullable=False)
+    les = db.relationship('Les', backref='vak1', lazy=True)
 
 class Les(db.Model):
     les_id = db.Column(db.Integer, primary_key=True, nullable=False)
-    vak = db.Column(db.String(150), nullable=False)
+    vak_id = db.Column(db.Integer, db.ForeignKey('vak.vak_id'), nullable=False)
     datum = db.Column(db.DateTime, nullable=False)
-    lesinschrijvingen = db.relationship('LesInschrijving', backref='inschrijving3', lazy=True)
+    lesinschrijvingen = db.relationship('LesInschrijving', backref='les', lazy=True)
 
 class KlasInschrijving(db.Model):
-    studentnummer = db.Column(db.Integer, db.ForeignKey('student.studentnummer'), primary_key=True, nullable=False)
-    klascode = db.Column(db.Integer, db.ForeignKey('klas.klascode'), primary_key=True, nullable=False)
+    klasinschrijving_id = db.Column(db.Integer, primary_key=True, nullable=False)
+    studentnummer = db.Column(db.Integer, db.ForeignKey('student.studentnummer'), nullable=False)
+    klascode = db.Column(db.Integer, db.ForeignKey('klas.klascode'), nullable=False)
 
 class LesInschrijving(db.Model):
     id = db.Column(db.Integer, primary_key=True, nullable=False, unique=True)
@@ -93,12 +97,17 @@ class KlasSchema(ma.Schema):
     klascode = fields.String()
     slc_docent = fields.String()
 
+class VakSchema(ma.Schema):
+    vak_id = fields.Integer()
+    vak = fields.String()
+
 class LesSchema(ma.Schema):
     les_id = fields.Integer()
-    vak = fields.String()
+    vak_id = fields.Nested(VakSchema)
     datum = fields.DateTime()
 
 class KlasInschrijvingSchema(ma.Schema):
+    klasInschrijving_id = fields.Integer()
     studentnummer = fields.Nested(StudentSchema)
     klascode = fields.Nested(KlasSchema)
 
@@ -260,8 +269,23 @@ def klassen():
     else:
         return "Jij hebt geen recht"
     
-@app.route("/klas/<les>", methods = ['POST', 'GET'])
-def klas(les):
+
+
+@app.route("/klas/<klas>/studenten")
+def klas(klas):
+    return render_template('studenten.html', klas=klas)
+
+@app.route("/<klas>/getstudenten", methods = ['POST', 'GET'])
+def getstudenten(klas):
+    tests = KlasInschrijving.query.filter_by(klascode = str(klas)).all()
+    studenten = []
+    for test in tests:
+        case = {"naam": test.student.naam, "studentnummer": test.student.studentnummer}
+        studenten.append(case)
+    return jsonify(studenten)
+
+@app.route("/lessen/<les>", methods = ['POST', 'GET'])
+def les(les):
     if session['rights'] == True:
         img = qrcode.make(f"http://127.0.0.1:5000/les/{les}")
         img.save('static/qr.png')

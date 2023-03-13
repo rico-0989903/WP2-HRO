@@ -4,8 +4,7 @@ body{
 }
 main{
     margin-left: 5rem;
-    padding-left: 2rem;
-    padding-top: 2rem;
+    padding: 1rem;
 }
 
 
@@ -49,7 +48,7 @@ main{
     align-items: center;
     height: 6rem;
     text-decoration: none;
-    
+    overflow: hidden;
 }
 
 .navbar-link svg {
@@ -94,9 +93,8 @@ main{
 
 .klassen{
     display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    margin-top: 2rem;
+    align-items: center;
+    justify-content: space-around;
 }
 
 .klas{
@@ -110,12 +108,26 @@ main{
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    gap: 10px;
     transition: 400ms ease;
-    cursor: pointer;
     color: white;
     font-weight: bold;
-}
+    box-shadow: 0px 0px 7px 1px black;
 
+}
+.optionButton{
+    color:rgb(110, 0, 28);
+    background-color: white;
+    border: solid 1px black;
+    border-radius: 4px;
+    padding: 2px;
+    box-shadow: 0px 0px 10px 1px rgba(0, 0, 0, 0.392);
+}
+.optionButton:hover{
+    transform: scale(105%);
+    transition: 300ms ease;
+    box-shadow: 0px 0px 10px 2px rgb(203, 0, 51);
+}
 .lessen{
     display: flex;
     flex-wrap: wrap;
@@ -150,7 +162,7 @@ h1 {
 h2 {
     font-family: monospace;
     font-size: 1rem;
-    color: darkslategray;
+    color: black;
     font-weight: bold;
 }
 
@@ -161,8 +173,9 @@ tr {
     font-weight: bold;
 }
 table{
-
+    background-color: rgb(255, 247, 234);
     border-spacing: 0px;
+    box-shadow: 0px 0px 5px 1px black;
 }
 
 th {
