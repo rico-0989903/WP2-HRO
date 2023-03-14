@@ -9,7 +9,7 @@
         <article id="les_form" style="display: none;">
             <div class="addform">
                 <p>Vak:</p>
-                <input type="text" id="vak">
+                <input type="text" id="vak" class="searchbar">
                 <p>Klassen</p>
                 <ul id="klassenlist">
                     <li class="klasitem">
@@ -21,13 +21,15 @@
                         <input id="1B" type="checkbox" name="klas" value="1B">
                     </li>
                 </ul>
-                <p>Studenten</p>
-                <div id="Dropdown" class="dropdownt">
-                    <input type="text" placeholder="Search.." id="Search" onkeyup="filterFunction()">
-                    <a id="Rico" onclick="addstudent(this)">Rico</a>
-                    <a id="Jelle" onclick="addstudent(this)">Jelle</a>
-                    <a id="Roman" onclick="addstudent(this)">Roman</a>
-                  </div>
+                <a href="#" onclick="visibility_toggle('studentfield')" class="add_studenten">Extra Studenten</a>
+                <article id="studentfield"  style="display: none;">
+                    <input type="text" placeholder="Search.." id="searchbar"  class="searchbar" onkeyup="Search()">
+                    <ul id="namelist">
+                        <li><a href="#" id="Rico" onclick="addstudent(this)">Rico</a></li>
+                        <li><a href="#" id="Jelle" onclick="addstudent(this)">Jelle</a></li>
+                        <li><a href="#" id="Roman" onclick="addstudent(this)">Roman</a></li>
+                    </ul>
+                </article>
                 <p>Tijdstip:</p>
                 <input type="datetime-local" id="tijdstip"><br>
                 <button id="newlesson" class="lessonmaker">Maak nieuwe les</button>
@@ -49,7 +51,9 @@
     <script>
         const extrastudenten = []
         function addstudent(student){
-            extrastudent.push(student.id)
+            extrastudenten.push(student.id)
+            document.getElementById(student.id).style.display = "none"
+            console.log(extrastudenten)
         }
 
         const fetch_scores = async () => {
@@ -96,7 +100,7 @@
                 if(checkboxes[i].checked)  
                 lesklassen.push(checkboxes[i].id)
             } 
-            console.log(lesklassen)
+            console.log(extrastudenten)
             payload = {
                 "vak": $("#vak").val(),
                 "datum": $("#tijdstip").val(),
@@ -127,7 +131,32 @@
             return les_form.style.display = "none"
         }
     }
+
+    function visibility_toggle(field_id){
+        toggle_item = document.getElementById(field_id)
+      if (toggle_item.style.display === "none"){
+            return toggle_item.style.display = "block"
+        } else{
+            return toggle_item.style.display = "none"
+        }  
+    }
     
+    function Search() {
+    var input, filter, ul, li, a, i;
+    input = document.getElementById("searchbar");
+    filter = input.value.toUpperCase();
+    ul = document.getElementById("namelist");
+    li = ul.getElementsByTagName("li");
+    for (i = 0; i < li.length; i++) {
+        a = li[i].getElementsByTagName("a")[0];
+        if (a.innerHTML.toUpperCase().indexOf(filter) > -1) {
+            li[i].style.display = "";
+        } else {
+            li[i].style.display = "none";
+        }
+    }
+}
+
     fetch_scores()
     let interval_id = setInterval(fetch_scores, 2000)
     document.getElementById("add_lesson").addEventListener("click", show_form)

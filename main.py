@@ -238,8 +238,8 @@ def getlessen():
 def addlesson():
     if session['rights'] == True:
         datetimeformat = '%Y-%m-%dT%H:%M'
-        print(f"Nieuwe les! Vak: {request.json['vak']}, Datum: {request.json['datum']}, De klassen: {request.json['klassen']}")
-        newlesson = Les(vak=request.json['vak'], datum=datetime.strptime(request.json['datum'], datetimeformat))
+        print(f"Nieuwe les! Vak: {request.json['vak']}, Datum: {request.json['datum']}, De klassen: {request.json['klassen']}, Extra Studenten: {request.json['studenten']}")
+        newlesson = Les(vak_id=request.json['vak'], datum=datetime.strptime(request.json['datum'], datetimeformat))
         db.session.add(newlesson)
         db.session.commit()
         return "Les toegevoegd"
