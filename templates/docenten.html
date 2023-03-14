@@ -10,6 +10,17 @@
             <div class="addform">
                 <p>Vak:</p>
                 <input type="text" id="vak">
+                <p>klassen</p>
+                <ul id="klassenlist">
+                    <li class="klasitem">
+                        <label for="1A">1A</label>
+                        <input id="1A" type="checkbox" name="klas" value="1A">
+                    </li>
+                    <li class="klasitem">
+                        <label for="1B">1B</label>
+                        <input id="1B" type="checkbox" name="klas" value="1B">
+                    </li>
+                </ul>
                 <p>Tijdstip:</p>
                 <input type="datetime-local" id="tijdstip"><br>
                 <button id="newlesson" class="lessonmaker">Maak nieuwe les</button>
@@ -39,7 +50,7 @@
                 }
             });
             const data = await response.json();
-            console.log(data);
+            //console.log(data);
             if (response.error) {
                 console.log("Some error with fetching JSON from highscore server")
             } else if (!response.ok) {
@@ -67,9 +78,17 @@
 
         const add_lesson = async () => {
         try {
+            var lesklassen = []
+            var checkboxes = document.getElementsByName("klas");
+            for(var i = 0; i < checkboxes.length; i++)  {  
+                if(checkboxes[i].checked)  
+                lesklassen.push(checkboxes[i].id)
+            } 
+            console.log(lesklassen)
             payload = {
                 "vak": $("#vak").val(),
                 "datum": $("#tijdstip").val(),
+                "klassen": JSON.stringify(lesklassen),
             }
 
         const response = await fetch("/addlesson", {
@@ -95,6 +114,7 @@
             return les_form.style.display = "none"
         }
     }
+    
     fetch_scores()
     let interval_id = setInterval(fetch_scores, 2000)
     document.getElementById("add_lesson").addEventListener("click", show_form)

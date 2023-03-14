@@ -8,6 +8,11 @@ main{
     padding-top: 2rem;
 }
 
+#klassenlist {
+    list-style-type: none;
+    display: flex;
+    justify-content: left;
+  }
 
 #homebutton{
     position: relative;

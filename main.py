@@ -229,7 +229,7 @@ def getlessen():
 def addlesson():
     if session['rights'] == True:
         datetimeformat = '%Y-%m-%dT%H:%M'
-        print(f"Nieuwe les! Vak: {request.json['vak']}, Datum: {request.json['datum']}")
+        print(f"Nieuwe les! Vak: {request.json['vak']}, Datum: {request.json['datum']}, De klassen: {request.json['klassen']}")
         newlesson = Les(vak=request.json['vak'], datum=datetime.strptime(request.json['datum'], datetimeformat))
         db.session.add(newlesson)
         db.session.commit()
@@ -267,6 +267,15 @@ def klas(les):
         img.save('static/qr.png')
         img = url_for('static', filename='qr.png')
         return render_template('qrcode.html', img=img, les=les)
+    else:
+        return "Jij hebt geen recht"
+
+@app.route("/getklassen", methods = ["GET"])
+def getklassen():
+    if session['rights'] == True:
+        klassen = Klas.query.all()
+        result = klas_schema.dump(klassen)
+        return jsonify(result)
     else:
         return "Jij hebt geen recht"
 
