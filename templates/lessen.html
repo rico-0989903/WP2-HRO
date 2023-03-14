@@ -1,24 +1,50 @@
 {% extends "index.html" %}
 
 {% block les %}
-            <p>dit wordt het overzicht van de lessen</p>
-            <div class="lessen">
-                <a href="/les/1">
-                    <div class="les">
-                        <h2>Les 1</h2>
-                        <p>dit is het overzicht van les 1</p>
-                    </div>
-                </a>
-                <a href="/les/2">
-                    <div class="les">
-                        <h2>Les 2</h2>
-                        <p>dit is het overzicht van les 2</p>
-                    </div>
-                </a>
-                <a href="/les/3">
-                    <div class="les">
-                        <h2>Les 3</h2>
-                        <p>dit is het overzicht van les 3</p>
-                    </div>
+    <p>dit wordt het overzicht van de lessen</p>
+    <div class="lessen">
+        <a href="/les/1">
+            <div class="les">
+                <h2>Les 1</h2>
+                <p>dit is het overzicht van les 1</p>
             </div>
+        </a>
+        <a href="/les/2">
+            <div class="les">
+                <h2>Les 2</h2>
+                <p>dit is het overzicht van les 2</p>
+            </div>
+        </a>
+        <a href="/les/3">
+            <div class="les">
+                <h2>Les 3</h2>
+                <p>dit is het overzicht van les 3</p>
+            </div>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Vak</th>
+                <th>Datum</th>
+            </tr>
+        </thead>
+        <tbody id="lessen">
+            
+        </tbody>
+
+    <script>
+            function set_lessen(les) {
+        let lessen = document.getElementById("lessen")
+        lessen.replaceChildren()
+        les.forEach(function (student) {
+            lessen.innerHTML += `
+            <tr>
+                <td>${student["vak"]}</td>
+                <td>${student["datum"]}</td>
+            </tr>
+            `
+            })
+        }
+    </script>
 {% endblock %}
