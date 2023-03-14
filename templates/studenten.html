@@ -1,0 +1,55 @@
+{% extends "index.html" %}
+
+{% block studenten %}
+<h1 id="klas">Studenten van klas {{ klas }}</h1>
+<h2>Overzicht van uw lessen</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Studenten</th>
+                <th>Studentnummer</th>
+            </tr>
+        </thead>
+        <tbody id="studenten">
+
+        </tbody>
+    </table>
+<script>
+    const fetch_scores = async () => {
+    try {
+        const response = await fetch('/{{klas}}/getstudenten', {
+            method: 'GET',
+            headers: {
+                'accept': 'application/json',
+                'Content-Type': 'application/json'
+            }
+        });
+        const data = await response.json();
+        console.log(data);
+        if (response.error) {
+            console.log("Some error with fetching JSON from highscore server")
+        } else if (!response.ok) {
+            console.log("Some non-200 HTTP response code")
+        } else {
+            set_studenten(data)
+        }
+    } catch (e) {
+        console.log("Some error with fetching JSON from highscore server: " + e)
+    }
+    }
+
+    function set_studenten(package) {
+    let studenten = document.getElementById("studenten")
+    studenten.replaceChildren()
+    package.forEach(function (student) {
+        studenten.innerHTML += `
+        <tr>
+            <td>${student["naam"]}</td>
+            <td>${student["studentnummer"]}</td>
+        </tr>
+        `
+        })
+    }
+    fetch_scores()
+</script>
+{% endblock %}
