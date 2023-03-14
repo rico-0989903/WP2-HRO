@@ -220,10 +220,19 @@ def home():
 
 @app.route("/lessen")
 def lessen():
-    if session['rights'] == True:
         return render_template('lessen.html')
-    else:
-        return "Jij hebt geen recht" 
+
+@app.route("/getstudentlessen", methods = ['POST', 'GET'])
+def getstudentlessen():
+    tests = LesInschrijving.query.filter_by(studentnummer = session['user']).all()
+
+    lessen = []
+    for test in tests:
+        case = {"id": test.id, "studentnummer": test.student.studentnummer, "docent_id": test.docent.docent_id,
+                "les_id": test.les.les_id, "aanwezigheid": test.aanwezigheid_check,
+                "afwezigheid_reden": test.afwezigheid_rede, "vak_id": test.les.vak_id, "datum": test.les.datum, "vak": Vak.query.filter_by(vak_id = test.les.vak_id).first().vak}
+        lessen.append(case)
+    return jsonify(lessen)
 
 @app.route("/getlessen", methods = ['GET'])
 def getlessen():
@@ -253,7 +262,7 @@ def docenten():
     else:
         return "Jij hebt geen recht"
 
-@app.route("/getdocenten", methods = ["GET"])
+@app.route("/getdocenten", methods = ["POST", "GET"])
 def getdocenten():
     if session['rights'] == True:
         docenten = Docent.query.all()
@@ -269,8 +278,6 @@ def klassen():
     else:
         return "Jij hebt geen recht"
     
-
-
 @app.route("/klas/<klas>/studenten")
 def klas(klas):
     return render_template('studenten.html', klas=klas)
