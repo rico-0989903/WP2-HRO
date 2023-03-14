@@ -10,7 +10,7 @@
             <div class="addform">
                 <p>Vak:</p>
                 <input type="text" id="vak">
-                <p>klassen</p>
+                <p>Klassen</p>
                 <ul id="klassenlist">
                     <li class="klasitem">
                         <label for="1A">1A</label>
@@ -21,6 +21,13 @@
                         <input id="1B" type="checkbox" name="klas" value="1B">
                     </li>
                 </ul>
+                <p>Studenten</p>
+                <div id="Dropdown" class="dropdownt">
+                    <input type="text" placeholder="Search.." id="Search" onkeyup="filterFunction()">
+                    <a id="Rico" onclick="addstudent(this)">Rico</a>
+                    <a id="Jelle" onclick="addstudent(this)">Jelle</a>
+                    <a id="Roman" onclick="addstudent(this)">Roman</a>
+                  </div>
                 <p>Tijdstip:</p>
                 <input type="datetime-local" id="tijdstip"><br>
                 <button id="newlesson" class="lessonmaker">Maak nieuwe les</button>
@@ -40,6 +47,11 @@
 
 
     <script>
+        const extrastudenten = []
+        function addstudent(student){
+            extrastudent.push(student.id)
+        }
+
         const fetch_scores = async () => {
         try {
             const response = await fetch('/getlessen', {
@@ -76,7 +88,7 @@
             })
         }
 
-        const add_lesson = async () => {
+        const add_lesson= async ()  => {
         try {
             var lesklassen = []
             var checkboxes = document.getElementsByName("klas");
@@ -89,6 +101,7 @@
                 "vak": $("#vak").val(),
                 "datum": $("#tijdstip").val(),
                 "klassen": JSON.stringify(lesklassen),
+                "studenten": JSON.stringify(extrastudenten),
             }
 
         const response = await fetch("/addlesson", {
