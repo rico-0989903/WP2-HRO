@@ -300,7 +300,7 @@ def les(les):
         return render_template('qrcode.html', img=img, les=les)
     else:
         return "Jij hebt geen recht"
-
+    
 @app.route("/les/<les>")
 def aanwezigheid(les):
     if session['rights'] == True:
