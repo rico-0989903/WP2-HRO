@@ -9,29 +9,37 @@
         <article id="les_form" style="display: none;">
             <div class="addform">
                 <p>Vak:</p>
-                <input type="text" id="vak" class="searchbar">
+                <select name="vakken" id="vak" class="searchbar">
+                    {% for vak in vakken %}
+                    <option value="{{vak}}">{{vak}}</option>
+                    {% endfor %}
+                </select>
+                <p>Docent:</p>
+                <select name="docenten" id="docent" class="searchbar">
+                    {% for docent in docenten %}
+                    <option value="{{docent}}">{{docent}}</option>
+                    {% endfor %}
+                </select>
                 <p>Klassen</p>
                 <ul id="klassenlist">
+                    {% for klas in klassen%}
                     <li class="klasitem">
-                        <label for="1A">1A</label>
-                        <input id="1A" type="checkbox" name="klas" value="1A">
+                        <label for="{{klas}}">{{klas}}</label>
+                        <input id="{{klas}}" type="checkbox" name="klas" value="{{klas}}">
                     </li>
-                    <li class="klasitem">
-                        <label for="1B">1B</label>
-                        <input id="1B" type="checkbox" name="klas" value="1B">
-                    </li>
+                    {% endfor %}
                 </ul>
                 <a href="#" onclick="visibility_toggle('studentfield')" class="add_studenten">Extra Studenten</a>
                 <article id="studentfield"  style="display: none;">
                     <input type="text" placeholder="Search.." id="searchbar"  class="searchbar" onkeyup="Search()">
                     <ul id="namelist">
-                        <li><a href="#" id="Rico" onclick="addstudent(this)">Rico</a></li>
-                        <li><a href="#" id="Jelle" onclick="addstudent(this)">Jelle</a></li>
-                        <li><a href="#" id="Roman" onclick="addstudent(this)">Roman</a></li>
+                        {% for student in studenten%}
+                        <li><a href="#" id="{{student}}" onclick="addstudent(this)">{{student}}</a></li>
+                        {% endfor %}
                     </ul>
                 </article>
                 <p>Tijdstip:</p>
-                <input type="datetime-local" id="tijdstip"><br>
+                <input type="datetime-local" id="tijdstip" class="searchbar"><br>
                 <button id="newlesson" class="lessonmaker">Maak nieuwe les</button>
             </div>
         </article>
@@ -103,11 +111,12 @@
             console.log(extrastudenten)
             payload = {
                 "vak": $("#vak").val(),
+                "docent": $("#docent").val(),
                 "datum": $("#tijdstip").val(),
                 "klassen": JSON.stringify(lesklassen),
                 "studenten": JSON.stringify(extrastudenten),
             }
-
+            console.log(payload)
         const response = await fetch("/addlesson", {
             method: 'POST',
             body: JSON.stringify(payload),

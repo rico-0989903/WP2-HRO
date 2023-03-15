@@ -1,5 +1,7 @@
 import os
 import qrcode
+import ast
+import uuid
 from datetime import datetime
 from flask import Flask, render_template, jsonify, request, url_for, redirect, session
 from flask_sqlalchemy import SQLAlchemy
@@ -228,28 +230,61 @@ def lessen():
 @app.route("/getlessen", methods = ['GET'])
 def getlessen():
     if session['rights'] == True:
-        lessen = Les.query.all()
-        lesresult = les_schema.dump(lessen)
-        return jsonify(lesresult)
+        tests = Les.query.all()
+        studenten = []
+        for test in tests:
+            case = {"vak_id": test.vak_id, "les_id": test.les_id, "datum": test.datum, "vak": Vak.query.filter_by(vak_id = test.vak_id).first().vak}
+            studenten.append(case)
+        return jsonify(studenten)
     else:
         return "Jij hebt geen recht"
 
-@app.route("/addlesson", methods = ['POST'])
+@app.route("/addlesson", methods = ['GET', 'POST'])
 def addlesson():
-    if session['rights'] == True:
-        datetimeformat = '%Y-%m-%dT%H:%M'
-        print(f"Nieuwe les! Vak: {request.json['vak']}, Datum: {request.json['datum']}, De klassen: {request.json['klassen']}, Extra Studenten: {request.json['studenten']}")
-        newlesson = Les(vak_id=request.json['vak'], datum=datetime.strptime(request.json['datum'], datetimeformat))
-        db.session.add(newlesson)
-        db.session.commit()
-        return "Les toegevoegd"
-    else:
-        return "Jij hebt geen recht"
+
+    def retrievenames(klas):
+        tests = KlasInschrijving.query.filter_by(klascode = klas).all()
+        studenten = []
+        for test in tests:
+            case = test.student.studentnummer
+            studenten.append(case)
+        return studenten
+    #Sets datetime format
+    datetimeformat = '%Y-%m-%dT%H:%M'
+    lesvak = request.json['vak']
+
+    #retrieves students
+    studenten = []
+    for item in ast.literal_eval(request.json['klassen']):
+        studenten.extend(retrievenames(item))
+    print(studenten) 
+    #print(f"Nieuwe les! Vak: {request.json['vak']} met als id: {Vak.query.filter_by(vak = lesvak).first().vak_id}, de docent is: {request.json['docent']}, Datum: {request.json['datum']}, De klassen: {request.json['klassen']}, Extra Studenten: {request.json['studenten']}")
+    newlesson = Les(vak_id=int(Vak.query.filter_by(vak = lesvak).first().vak_id), datum=datetime.strptime(request.json['datum'], datetimeformat))
+    db.session.add(newlesson)
+    db.session.commit()
+    return "Les toegevoegd"
 
 @app.route("/docenten", methods = ['POST', 'GET'])
 def docenten():
     if session['rights'] == True:
-        return render_template('docenten.html')
+        studenten = Student.query.all()
+        klassen = Klas.query.all()
+        vakken = Vak.query.all()
+        docenten = Docent.query.all()
+        students = []
+        classes = []
+        subjects = []
+        teachers = []
+
+        for student in studenten:
+            students.append(student.naam)
+        for klas in klassen:
+            classes.append(klas.klascode)
+        for vak in vakken:
+            subjects.append(vak.vak)
+        for docent in docenten:
+            teachers.append(docent.naam)
+        return render_template('docenten.html', studenten=students, klassen=classes, vakken=subjects, docenten=teachers)
     else:
         return "Jij hebt geen recht"
 
