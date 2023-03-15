@@ -1,13 +1,17 @@
 {% extends "index.html" %}
 
+{% block qr %}
+<img src="{{img}}">
+{% endblock %}
+
 {% block aanwezigheid %}
 
-<h1>Overzicht van aanwezigheid</h1>
 <h2>Studenten in les: {{  lesnaam  }}</h2>
     <table>
         <thead>
             <tr>
                 <th>Naam</th>
+                <th>Studentnummer</th>
                 <th>Aanwezigheid</th>
             </tr>
         </thead>
@@ -16,7 +20,7 @@
         </tbody>
     </table>
 <script>
-    const fetch_scores = async () => {
+    const fetch_aanwezigheid = async () => {
     try {
         const response = await fetch('/les/{{les_id}}/getaanwezigheid', {
             method: 'GET',
@@ -50,11 +54,14 @@
         aanwezigheid.innerHTML += `
         <tr>
             <td>${aanwezig["naam"]}</td>
+            <td>${aanwezig["studentnummer"]}</td>
             <td>${aanwezig["aanwezigheid"]}</td>
         </tr>
         `
         })
     }
-    fetch_scores()
+    fetch_aanwezigheid()
+    let interval_id = setInterval(fetch_aanwezigheid, 4000)
+
 </script>
 {% endblock %}

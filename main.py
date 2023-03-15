@@ -291,22 +291,15 @@ def getstudenten(klas):
         studenten.append(case)
     return jsonify(studenten)
 
-@app.route("/lessen/<les>", methods = ['POST', 'GET'])
-def les(les):
-    if session['rights'] == True:
-        img = qrcode.make(f"http://127.0.0.1:5000/les/{les}")
-        img.save('static/qr.png')
-        img = url_for('static', filename='qr.png')
-        return render_template('qrcode.html', img=img, les=les)
-    else:
-        return "Jij hebt geen recht"
-
 @app.route("/les/<les>/aanwezigheid")
 def aanwezigheid(les):
     tests = Les.query.filter_by(les_id = les).first()
     lesnaam = tests.vak1.vak
-    les_id = tests.les_id
-    return render_template('aanwezigheid.html', lesnaam=lesnaam, les_id=les_id)
+    les = tests.les_id
+    img = qrcode.make(f"http://127.0.0.1:5000/les/{les}")
+    img.save('static/qr.png')
+    img = url_for('static', filename='qr.png')
+    return render_template('aanwezigheid.html', lesnaam=lesnaam, les_id=les, img=img)
 
 @app.route("/les/<les>/getaanwezigheid", methods = ['POST', 'GET'])
 def lesaanwezigheid(les):
@@ -317,33 +310,27 @@ def lesaanwezigheid(les):
         aanwezigheid.append(case)
     return jsonify(aanwezigheid)
 
-# @app.route("/les/<les>")
-# def aanwezigheid(les):
-#     if session['rights'] == True:
-#         return render_template('form.html', les=les)
-#     else:
-#         return "Jij hebt geen recht"
+@app.route("/inschrijven/<les>")
+def aanwezig(les):
+        return render_template('form.html', les=les)
 
-# @app.route("/test", methods = ['POST','GET'])
-# def test():
-#     if session['rights'] == True:
-#         studenten = aanwezig.query.order_by(aanwezig.aanwezigheid).all()
-#         result= students_schema.dump(studenten)
-#         return jsonify(result)
-#     else:
-#         return "Jij hebt geen recht"
+@app.route("/test/<les>", methods = ['POST','GET'])
+def test(les):
+    tests = LesInschrijving.query.filter_by(les_id = str(les)).all()
+    aanwezigheid = []
+    for test in tests:
+        case = {"naam": test.student.naam, "studentnummer": test.student.studentnummer, "aanwezigheid": test.aanwezigheid_check, "afwezigheid_reden": test.afwezigheid_rede}
+        aanwezigheid.append(case)
+    return jsonify(aanwezigheid)
 
-# @app.route("/data", methods = ['POST', 'GET', 'PUT'])
-# def data():
-#     if session['rights'] == True:
-#         naam = request.json['naam']
-#         data = aanwezig.query.filter_by(naam = naam).first()
-#         print(data)
-#         data.aanwezigheid=request.json['aanwezigheid']
-#         db.session.commit()
-#         return jsonify("Gelukt")
-#     else:
-#         return "Jij hebt geen recht"
+@app.route("/<les>/aanwezig", methods = ['POST', 'GET', 'PUT'])
+def data(les):
+    studentnummer = request.json['studentnummer']
+    data = LesInschrijving.query.filter_by(les_id = str(les), studentnummer = studentnummer).first()
+    print(data)
+    data.aanwezigheid_check = 1
+    db.session.commit()
+    return jsonify("Gelukt")
 
 if __name__ == '__main__':
     app.run(host="localhost", debug=True)
