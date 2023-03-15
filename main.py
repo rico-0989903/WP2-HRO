@@ -300,34 +300,49 @@ def les(les):
         return render_template('qrcode.html', img=img, les=les)
     else:
         return "Jij hebt geen recht"
-    
-@app.route("/les/<les>")
+
+@app.route("/les/<les>/aanwezigheid")
 def aanwezigheid(les):
-    if session['rights'] == True:
-        return render_template('form.html', les=les)
-    else:
-        return "Jij hebt geen recht"
+    tests = Les.query.filter_by(les_id = les).first()
+    les = tests.vak1.vak
+    return render_template('aanwezigheid.html', les=les)
 
-@app.route("/test", methods = ['POST','GET'])
-def test():
-    if session['rights'] == True:
-        studenten = aanwezig.query.order_by(aanwezig.aanwezigheid).all()
-        result= students_schema.dump(studenten)
-        return jsonify(result)
-    else:
-        return "Jij hebt geen recht"
+@app.route("/les/<les>/getaanwezigheid", methods = ['POST', 'GET'])
+def lesaanwezigheid(les):
+    tests = Les.query.filter_by(les_id = les)
+    vaknaam = []
+    for test in tests:
+        case = {"vak_id": test.vak_id, "les_id": test.les_id, "datum": test.datum, "vak": Vak.query.filter_by(vak_id = test.vak_id).first().vak}
+        vaknaam.append(case)
+    return jsonify(vaknaam)
 
-@app.route("/data", methods = ['POST', 'GET', 'PUT'])
-def data():
-    if session['rights'] == True:
-        naam = request.json['naam']
-        data = aanwezig.query.filter_by(naam = naam).first()
-        print(data)
-        data.aanwezigheid=request.json['aanwezigheid']
-        db.session.commit()
-        return jsonify("Gelukt")
-    else:
-        return "Jij hebt geen recht"
+# @app.route("/les/<les>")
+# def aanwezigheid(les):
+#     if session['rights'] == True:
+#         return render_template('form.html', les=les)
+#     else:
+#         return "Jij hebt geen recht"
+
+# @app.route("/test", methods = ['POST','GET'])
+# def test():
+#     if session['rights'] == True:
+#         studenten = aanwezig.query.order_by(aanwezig.aanwezigheid).all()
+#         result= students_schema.dump(studenten)
+#         return jsonify(result)
+#     else:
+#         return "Jij hebt geen recht"
+
+# @app.route("/data", methods = ['POST', 'GET', 'PUT'])
+# def data():
+#     if session['rights'] == True:
+#         naam = request.json['naam']
+#         data = aanwezig.query.filter_by(naam = naam).first()
+#         print(data)
+#         data.aanwezigheid=request.json['aanwezigheid']
+#         db.session.commit()
+#         return jsonify("Gelukt")
+#     else:
+#         return "Jij hebt geen recht"
 
 if __name__ == '__main__':
     app.run(host="localhost", debug=True)
