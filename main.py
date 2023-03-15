@@ -317,33 +317,33 @@ def lesaanwezigheid(les):
         aanwezigheid.append(case)
     return jsonify(aanwezigheid)
 
-@app.route("/les/<les>")
-def aanwezigheid(les):
-    if session['rights'] == True:
-        return render_template('form.html', les=les)
-    else:
-        return "Jij hebt geen recht"
+# @app.route("/les/<les>")
+# def aanwezigheid(les):
+#     if session['rights'] == True:
+#         return render_template('form.html', les=les)
+#     else:
+#         return "Jij hebt geen recht"
 
-@app.route("/test", methods = ['POST','GET'])
-def test():
-    if session['rights'] == True:
-        studenten = aanwezig.query.order_by(aanwezig.aanwezigheid).all()
-        result= students_schema.dump(studenten)
-        return jsonify(result)
-    else:
-        return "Jij hebt geen recht"
+# @app.route("/test", methods = ['POST','GET'])
+# def test():
+#     if session['rights'] == True:
+#         studenten = aanwezig.query.order_by(aanwezig.aanwezigheid).all()
+#         result= students_schema.dump(studenten)
+#         return jsonify(result)
+#     else:
+#         return "Jij hebt geen recht"
 
-@app.route("/data", methods = ['POST', 'GET', 'PUT'])
-def data():
-    if session['rights'] == True:
-        naam = request.json['naam']
-        data = aanwezig.query.filter_by(naam = naam).first()
-        print(data)
-        data.aanwezigheid=request.json['aanwezigheid']
-        db.session.commit()
-        return jsonify("Gelukt")
-    else:
-        return "Jij hebt geen recht"
+# @app.route("/data", methods = ['POST', 'GET', 'PUT'])
+# def data():
+#     if session['rights'] == True:
+#         naam = request.json['naam']
+#         data = aanwezig.query.filter_by(naam = naam).first()
+#         print(data)
+#         data.aanwezigheid=request.json['aanwezigheid']
+#         db.session.commit()
+#         return jsonify("Gelukt")
+#     else:
+#         return "Jij hebt geen recht"
 
 if __name__ == '__main__':
     app.run(host="localhost", debug=True)
