@@ -172,6 +172,84 @@ tr {
     color: darkslategrey;
     font-weight: bold;
 }
+.container{
+    display: flex;
+    flex-direction: row;
+    gap: 10vw;
+    justify-content: center;
+}
+
+.newExpandDiv[aria-expanded="false"]{
+    display: none;
+}
+.delExpandDiv[aria-expanded="false"]{
+    display: none;
+}
+.newExpandDiv[aria-expanded="true"]{
+    display: block;
+}
+.delExpandDiv[aria-expanded="true"]{
+    display: block;
+}
+#namelistnew{
+    display: none;
+    list-style: none;
+    padding: 0;
+}
+#namelistnew:hover{
+    display: block;
+}
+#namelistdel{
+    display: none;
+    list-style: none;
+    padding: 0;
+}
+#namelistdel:hover{
+    display: block;
+}
+#newstudent:focus ~ #namelistnew{
+    display: block;
+}
+#delstudent:focus ~ #namelistdel{
+    display: block;
+}
+#naam:hover{
+    cursor: pointer;
+    text-shadow: 0px 0.5px 2px black;
+}
+.newExpand{
+    font-family: monospace;
+    font-size: 1rem;
+    font-weight: bold;
+    background-color: rgb(214, 0, 53);
+    color: white;
+    padding: 5px;
+    border: 1px solid black;
+    border-radius: 5px;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+    
+}
+.delExpand{
+    font-family: monospace;
+    font-size: 1rem;
+    font-weight: bold;
+    background-color: rgb(214, 0, 53);
+    color: white;
+    padding: 5px;
+    border: 1px solid black;
+    border-radius: 5px;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+}
+.newExpand:hover{
+    scale: 105%;
+    box-shadow: 0px 0px 5px 0.5px black;
+}
+.delExpand:hover{
+    scale: 105%;
+    box-shadow: 0px 0px 5px 0.5px black;
+}
 table{
     background-color: rgb(255, 247, 234);
     border-spacing: 0px;
@@ -185,7 +263,7 @@ th {
     font-weight: bold;
     text-align: left;
     background-color: rgb(209, 0, 65);
-    padding: 10px;
+    padding: 5px;
     border: solid 1px black;
 }
 td{

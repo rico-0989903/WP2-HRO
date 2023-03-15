@@ -10,6 +10,9 @@ from wtforms import StringField, PasswordField, SubmitField
 from wtforms.validators import InputRequired, Length
 from flask_wtf import FlaskForm
 from werkzeug.security import generate_password_hash, check_password_hash
+from faker import Faker
+
+fake = Faker('en_US')
 
 app = Flask(__name__)
 
@@ -280,11 +283,41 @@ def klassen():
     
 @app.route("/klas/<klas>/studenten")
 def klas(klas):
-    return render_template('studenten.html', klas=klas)
+    query1 = Klas.query.filter_by(klascode = str(klas)).first()
+    slc_docent = query1.slc_docent
+    query2 = Student.query.all()
+    namen = []
+    for naam in query2:
+        namen.append(naam.naam)
+    return render_template('studenten.html', klas=klas, slc_docent=slc_docent, namen=namen)
+
+@app.route("/<klas>/delstudent", methods = ['POST', 'GET'])
+def delstudent(klas): 
+    naam = Student.query.filter_by(naam = request.json['naam']).first()
+    nummer = naam.studentnummer
+    user = KlasInschrijving.query.filter_by(klascode = str(klas), studentnummer = nummer)
+    print(user)
+    user.delete()
+    db.session.commit()
+    return jsonify('gelukt')
+
+@app.route("/<klas>/addstudent", methods = ['POST', 'GET'])
+def addstudent(klas):
+        naam = Student.query.filter_by(naam = request.json['naam']).first()
+        nummer = naam.studentnummer
+        check = KlasInschrijving.query.filter_by(klascode = str(klas), studentnummer = nummer).first() is not None
+        print(check)
+        if check == False:
+            user = KlasInschrijving(studentnummer = nummer, klascode = str(klas))
+            db.session.add(user)
+            db.session.commit()
+        else:
+            return jsonify("Student zit al in deze klas")
+        return jsonify('gelukt')  
 
 @app.route("/<klas>/getstudenten", methods = ['POST', 'GET'])
 def getstudenten(klas):
-    tests = KlasInschrijving.query.filter_by(klascode = str(klas)).all()
+    tests = KlasInschrijving.query.filter_by(klascode = str(klas)).order_by(KlasInschrijving.studentnummer).all()
     studenten = []
     for test in tests:
         case = {"naam": test.student.naam, "studentnummer": test.student.studentnummer}
@@ -328,6 +361,7 @@ def data():
         return jsonify("Gelukt")
     else:
         return "Jij hebt geen recht"
+
 
 if __name__ == '__main__':
     app.run(host="localhost", debug=True)

@@ -1,19 +1,47 @@
 {% extends "index.html" %}
 
 {% block studenten %}
-<h1 id="klas">Studenten van klas {{ klas }}</h1>
-<h2>Overzicht van uw lessen</h2>
-    <table>
-        <thead>
-            <tr>
-                <th>Studenten</th>
-                <th>Studentnummer</th>
-            </tr>
-        </thead>
-        <tbody id="studenten">
+<div class="container">
+    <div class="container-item">
+        <h1 id="klas">Studenten van klas {{ klas }}</h1>
+        <h2>SLC Docent is {{slc_docent}}</h2>
+        <button class="newExpand" button-pressed="false">Student toevoegen</button>
+        <br>
+        <div class="newExpandDiv" aria-expanded="false">
+            <input id="newstudent" type="text" placeholder="Student" onkeyup="Searchnew()">
+            <button id="newButton" onclick="submit_entry('new')">Toevoegen</button>
+            <ul id="namelistnew">
+                {% for naam in namen %}
+                <li id="studentlist"><a id="naam" href="#" onclick="fillinnew(innerHTML)">{{naam}}</a></li>
+                {% endfor %}
+            </ul>
+        </div>
 
-        </tbody>
-    </table>
+        <button class="delExpand" button-pressed="false">Student verwijderen</button>
+        <br>
+        <div class="delExpandDiv" aria-expanded="false">
+            <input id="delstudent" type="text" placeholder="Student" onkeyup="Searchdel()>
+            <button id="delButton" onclick="submit_entry('del')">Verwijderen</button>
+            <ul id="namelistdel">
+                <li id="delnamelist"></li>
+            </ul>
+        </div>
+    </div> 
+    <div class="container-item"> 
+           <table class="studenttable">
+    
+                <thead>
+                    <tr>
+                        <th>Studenten</th>
+                        <th>Studentnummer</th>
+                    </tr>
+                </thead>
+                <tbody id="studenten">
+
+                </tbody>
+            </table>
+    </div>          
+</div>
 <script>
     const fetch_scores = async () => {
     try {
@@ -37,9 +65,20 @@
         console.log("Some error with fetching JSON from highscore server: " + e)
     }
     }
+    
 
     function set_studenten(package) {
-    let studenten = document.getElementById("studenten")
+    var autoshow = document.getElementById("delnamelist")
+    autoshow.replaceChildren()
+    package.forEach(function (show) {
+        autoshow.innerHTML += `
+        <li id="studentlist">
+            <a id="naam" href="#" onclick="fillindel(innerHTML)">${show["naam"]}</a>
+        </li>
+        `
+    })
+
+    var studenten = document.getElementById("studenten")
     studenten.replaceChildren()
     package.forEach(function (student) {
         studenten.innerHTML += `
@@ -48,8 +87,140 @@
             <td>${student["studentnummer"]}</td>
         </tr>
         `
-        })
+    })
+    
     }
+
+    function fillinnew(naam){
+        var input = document.getElementById("newstudent")
+        console.log(naam)
+        input.value = naam
+        toggle_item = document.getElementById("namelistnew")
+        if (toggle_item.style.display === "block"){
+            return toggle_item.style.display = "none"
+        }
+    }
+
+    function fillindel(naam){
+        var input = document.getElementById("delstudent")
+        input.value = naam
+        toggle_item = document.getElementById("namelistdel")
+        if (toggle_item.style.display === "block"){
+            return toggle_item.style.display = "none"
+        }
+    }
+
+    function Searchnew() {
+    var input, filter, ul, li, a, i;
+    input = document.getElementById("newstudent");
+    filter = input.value.toUpperCase();
+    ul = document.getElementById("namelistnew");
+    li = ul.getElementsByTagName("li");
+    for (i = 0; i < li.length; i++) {
+        a = li[i].getElementsByTagName("a")[0];
+        if (a.innerHTML.toUpperCase().indexOf(filter) > -1) {
+            li[i].style.display = "";
+        } else {
+            li[i].style.display = "none";
+        }
+        }
+    }
+
+    function Searchdel() {
+    var input, filter, ul, li, a, i;
+    input = document.getElementById("delstudent");
+    filter = input.value.toUpperCase();
+    ul = document.getElementById("namelistdel");
+    li = ul.getElementsByTagName("li");
+    for (i = 0; i < li.length; i++) {
+        a = li[i].getElementsByTagName("a")[0];
+        if (a.innerHTML.toUpperCase().indexOf(filter) > -1) {
+            li[i].style.display = "";
+        } else {
+            li[i].style.display = "none";
+        }
+        }
+    }
+
+    $("#delButton").submit(function(e) {
+    e.preventDefault();
+    })
+    $("#newButton").submit(function(e) {
+    e.preventDefault();
+    })
+
+    function submit_entry(data){
+        
+        if(data === "new"){
+            try{
+                var naam = document.getElementById('newstudent');
+                var entry = {
+                    naam: naam.value
+                }
+                fetch('/{{klas}}/addstudent',{
+                    method: 'POST',
+                    body: JSON.stringify(entry),
+                    headers: {
+                        "accept": "application/json",
+                        "content-type": "application/json"
+                    }
+                })
+                document.getElementById('newstudent').value = ""
+            } catch (error){
+                console.log(error);
+            } 
+            }
+        else if(data === "del"){
+            try{
+                var naam = document.getElementById('delstudent');
+                var entry = {
+                    naam: naam.value
+                }
+                fetch('/{{klas}}/delstudent',{
+                    method: 'POST',
+                    body: JSON.stringify(entry),
+                    headers: {
+                        "accept": "application/json",
+                        "content-type": "application/json"
+                    }
+                })
+                document.getElementById('delstudent').value = ""
+            } catch (error){
+                console.log(error);
+            }
+            }
+    }
+
+    const newPressed = document.querySelector(".newExpand")
+    const delPressed = document.querySelector(".delExpand")
+    const newOut = document.querySelector(".newExpandDiv")
+    const delOut = document.querySelector(".delExpandDiv")
+
+    newPressed.addEventListener("click", () =>{
+        const newvisibility = newOut.getAttribute("aria-expanded")
+        console.log(newvisibility);
+        if (newvisibility === "false"){
+            newOut.setAttribute("aria-expanded", true);
+            newPressed.setAttribute("button-pressed", true)
+        } else{
+            newOut.setAttribute("aria-expanded", false)
+            newPressed.setAttribute("button-pressed", false)   
+        }
+    })
+    
+    delPressed.addEventListener("click", () =>{
+        const delvisibility = delOut.getAttribute("aria-expanded")
+        console.log(delvisibility);
+        if (delvisibility === "false"){
+            delOut.setAttribute("aria-expanded", true);
+            delPressed.setAttribute("button-pressed", true)
+        } else{
+            delOut.setAttribute("aria-expanded", false)
+            delPressed.setAttribute("button-pressed", false)   
+        }
+    })
+
+    let interval_id = setInterval(fetch_scores, 2000)
     fetch_scores()
 </script>
 {% endblock %}
