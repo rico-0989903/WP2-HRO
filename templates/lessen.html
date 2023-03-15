@@ -15,7 +15,7 @@
         </tbody>
     </table>
 <script>
-    const fetch_scores = async () => {
+    const fetch_lessen = async () => {
     try {
         const response = await fetch('/getstudentlessen', {
             method: 'GET',
@@ -51,7 +51,8 @@
         })
     }
 
-    fetch_scores()
+    fetch_lessen()
+    let interval_id = setInterval(fetch_lessen, 5000)
 
 </script>
 {% endblock %}

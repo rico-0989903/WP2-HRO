@@ -25,10 +25,10 @@
             var entry = {
                 naam: naam.value,
                 studentnummer: studentnummer.value,
-                aanwezigheid: "aanwezig"
+                aanwezigheid: 1
             };
 
-            fetch('/data',{
+            fetch('/{{les}}/aanwezig',{
                 method: 'POST',
                 body: JSON.stringify(entry),
                 headers: {
