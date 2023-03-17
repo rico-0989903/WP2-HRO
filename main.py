@@ -160,7 +160,10 @@ def before_request():
 @app.route("/")
 def index():
     if "user" in session:
-        return redirect(url_for('home'))
+        if session["rights"] == "True":
+            return redirect(url_for('docenthome'))
+        else:
+            return redirect(url_for('studenthome'))
     else:
         return redirect(url_for('login'))
 
@@ -197,9 +200,10 @@ def login():
                 check_rights = gebruikers.query.filter_by(username=user.username).first()
                 if check_rights.rights == "True":
                     session['rights'] = True
+                    return redirect(url_for('docenthome'))
                 else:
                     session['rights'] = False
-                return redirect(url_for('home'))
+                    return redirect(url_for('studenthome'))
             else:
                 error = "Invalid username or password"
                 return render_template('login.html', form=form, error=error)
@@ -212,27 +216,38 @@ def login():
 @app.route('/logout')
 def logout():
     session.pop('user', None)
+    session.pop('rights', None)
     return redirect(url_for('index'))
 
-@app.route("/home")
-def home():
-    return render_template('home.html')
+@app.route("/home/student")
+def studenthome():
+    return render_template('studenthome.html', rights = session['rights'])
+
+@app.route("/home/docent")
+def docenthome():
+    return render_template('docenthome.html', rights = session['rights'])
 
 @app.route("/lessen")
 def lessen():
+    if session['rights'] == False:
         return render_template('lessen.html')
+    else:
+        return "Dit is alleen voor studenten"
 
 @app.route("/getstudentlessen", methods = ['POST', 'GET'])
 def getstudentlessen():
-    tests = LesInschrijving.query.filter_by(studentnummer = session['user']).all()
+    if session['rights'] == False:
+        tests = LesInschrijving.query.filter_by(studentnummer = session['user']).all()
 
-    lessen = []
-    for test in tests:
-        case = {"id": test.id, "studentnummer": test.student.studentnummer, "docent_id": test.docent.docent_id,
+        lessen = []
+        for test in tests:
+            case = {"id": test.id, "studentnummer": test.student.studentnummer, "docent_id": test.docent.docent_id,
                 "les_id": test.les.les_id, "aanwezigheid": test.aanwezigheid_check,
                 "afwezigheid_reden": test.afwezigheid_rede, "vak_id": test.les.vak_id, "datum": test.les.datum, "vak": Vak.query.filter_by(vak_id = test.les.vak_id).first().vak}
-        lessen.append(case)
-    return jsonify(lessen)
+            lessen.append(case)
+        return jsonify(lessen)
+    else:
+        return "Dit is alleen voor studenten"
 
 @app.route("/getlessen", methods = ['GET'])
 def getlessen():
@@ -241,7 +256,7 @@ def getlessen():
         lesresult = les_schema.dump(lessen)
         return jsonify(lesresult)
     else:
-        return "Jij hebt geen recht"
+        return "Dit is alleen voor docenten"
 
 @app.route("/addlesson", methods = ['POST'])
 def addlesson():
@@ -253,14 +268,14 @@ def addlesson():
         db.session.commit()
         return "Les toegevoegd"
     else:
-        return "Jij hebt geen recht"
+        return "Dit is alleen voor docenten"
 
 @app.route("/docenten", methods = ['POST', 'GET'])
 def docenten():
     if session['rights'] == True:
         return render_template('docenten.html')
     else:
-        return "Jij hebt geen recht"
+        return "Dit is alleen voor docenten"
 
 @app.route("/getdocenten", methods = ["POST", "GET"])
 def getdocenten():
@@ -269,60 +284,78 @@ def getdocenten():
         result = docent_schema.dump(docenten)
         return jsonify(result)
     else:
-        return "Jij hebt geen recht"
+        return "Dit is alleen voor docenten"
 
 @app.route("/klassen")
 def klassen():
     if session['rights'] == True:
         return render_template('klassen.html')
     else:
-        return "Jij hebt geen recht"
+        return "Dit is alleen voor docenten"
     
 @app.route("/klas/<klas>/studenten")
 def klas(klas):
-    return render_template('studenten.html', klas=klas)
-
+    if session['rights'] == True:
+        return render_template('studenten.html', klas=klas)
+    else:
+        return "Dit is alleen voor docenten"
+    
 @app.route("/<klas>/getstudenten", methods = ['POST', 'GET'])
 def getstudenten(klas):
-    tests = KlasInschrijving.query.filter_by(klascode = str(klas)).all()
-    studenten = []
-    for test in tests:
-        case = {"naam": test.student.naam, "studentnummer": test.student.studentnummer}
-        studenten.append(case)
-    return jsonify(studenten)
+    if session['rights'] == True:
+        tests = KlasInschrijving.query.filter_by(klascode = str(klas)).all()
+        studenten = []
+        for test in tests:
+            case = {"naam": test.student.naam, "studentnummer": test.student.studentnummer}
+            studenten.append(case)
+        return jsonify(studenten)
+    else:
+        return "Dit is alleen voor docenten"
 
 @app.route("/les/<les>/aanwezigheid")
 def aanwezigheid(les):
-    tests = Les.query.filter_by(les_id = les).first()
-    lesnaam = tests.vak1.vak
-    les = tests.les_id
-    img = qrcode.make(f"http://127.0.0.1:5000/les/{les}")
-    img.save('static/qr.png')
-    img = url_for('static', filename='qr.png')
-    return render_template('aanwezigheid.html', lesnaam=lesnaam, les_id=les, img=img)
-
+    if session['rights'] == True:
+        tests = Les.query.filter_by(les_id = les).first()
+        lesnaam = tests.vak1.vak
+        les = tests.les_id
+        img = qrcode.make(f"http://127.0.0.1:5000/les/{les}")
+        img.save('static/qr.png')
+        img = url_for('static', filename='qr.png')
+        return render_template('aanwezigheid.html', lesnaam=lesnaam, les_id=les, img=img)
+    else:
+        return "Dit is alleen voor docenten"
+    
 @app.route("/les/<les>/getaanwezigheid", methods = ['POST', 'GET'])
 def lesaanwezigheid(les):
-    tests = LesInschrijving.query.filter_by(les_id = str(les)).all()
-    aanwezigheid = []
-    for test in tests:
-        case = {"naam": test.student.naam, "studentnummer": test.student.studentnummer, "aanwezigheid": test.aanwezigheid_check, "afwezigheid_reden": test.afwezigheid_rede}
-        aanwezigheid.append(case)
-    return jsonify(aanwezigheid)
-
+    if session['rights'] == True:
+        tests = LesInschrijving.query.filter_by(les_id = str(les)).all()
+        aanwezigheid = []
+        for test in tests:
+            case = {"naam": test.student.naam, "studentnummer": test.student.studentnummer, "aanwezigheid": test.aanwezigheid_check, "afwezigheid_reden": test.afwezigheid_rede}
+            aanwezigheid.append(case)
+        return jsonify(aanwezigheid)
+    else:
+        return "Dit is alleen voor docenten"
+    
 @app.route("/inschrijven/<les>")
 def aanwezig(les):
+    if session['rights'] == False:
         return render_template('form.html', les=les)
+    else:
+        return "Dit is alleen voor studenten"
 
 @app.route("/test/<les>", methods = ['POST','GET'])
 def test(les):
-    tests = LesInschrijving.query.filter_by(les_id = str(les)).all()
-    aanwezigheid = []
-    for test in tests:
-        case = {"naam": test.student.naam, "studentnummer": test.student.studentnummer, "aanwezigheid": test.aanwezigheid_check, "afwezigheid_reden": test.afwezigheid_rede}
-        aanwezigheid.append(case)
-    return jsonify(aanwezigheid)
-
+    if session['rights'] == True:
+        tests = LesInschrijving.query.filter_by(les_id = str(les)).all()
+        aanwezigheid = []
+        for test in tests:
+            case = {"naam": test.student.naam, "studentnummer": test.student.studentnummer, "aanwezigheid": test.aanwezigheid_check, "afwezigheid_reden": test.afwezigheid_rede}
+            aanwezigheid.append(case)
+        return jsonify(aanwezigheid)
+    else:
+        return "Dit is alleen voor docenten"
+    
 @app.route("/<les>/aanwezig", methods = ['POST', 'GET', 'PUT'])
 def data(les):
     studentnummer = request.json['studentnummer']
