@@ -10,9 +10,6 @@ from wtforms import StringField, PasswordField, SubmitField
 from wtforms.validators import InputRequired, Length
 from flask_wtf import FlaskForm
 from werkzeug.security import generate_password_hash, check_password_hash
-from faker import Faker
-
-fake = Faker('en_US')
 
 app = Flask(__name__)
 
