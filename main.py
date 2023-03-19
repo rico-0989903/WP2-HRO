@@ -104,7 +104,7 @@ class VakSchema(ma.Schema):
     vak = fields.String()
 
 class LesSchema(ma.Schema):
-    les_id = fields.Integer()
+    les_id = fields.String()
     vak_id = fields.Nested(VakSchema)
     datum = fields.DateTime()
 
@@ -249,38 +249,41 @@ def addlesson():
             case = test.student.studentnummer
             studenten.append(case)
         return studenten
+    
+    try: 
+        #Sets datetime format
+        datetimeformat = '%Y-%m-%dT%H:%M'
 
-    #Sets datetime format
-    datetimeformat = '%Y-%m-%dT%H:%M'
+        # creates a single uuid 
+        new_les_id = []
+        uuid_gen = str(uuid.uuid4())
+        new_les_id.append(uuid_gen)
 
-    # creates a single uuid 
-    new_les_id = []
-    uuid_gen = str(uuid.uuid4())
-    new_les_id.append(uuid_gen)
+        # retrieves json 
+        lesvak = request.json['vak']
+        docent = request.json['docent']
+        docent_id = Docent.query.filter_by(naam=str(docent)).first().docent_id
 
-    # retrieves json 
-    lesvak = request.json['vak']
-    docent = request.json['docent']
-    docent_id = Docent.query.filter_by(naam=str(docent)).first().docent_id
+        #retrieves students
+        studenten = []
+        for item in ast.literal_eval(request.json['klassen']):
+            studenten.extend(retrievestudents(item))
+        for item in ast.literal_eval(request.json['studenten']):
+            studenten.append(Student.query.filter_by(naam=item).first().studentnummer)
 
-    #retrieves students
-    studenten = []
-    for item in ast.literal_eval(request.json['klassen']):
-        studenten.extend(retrievestudents(item))
-    for item in ast.literal_eval(request.json['studenten']):
-        studenten.append(Student.query.filter_by(naam=item).first().studentnummer)
+        for x in set(studenten):
+            #print(f'Nieuwe inschrijving! Studentnummer: {x}, Docent id: {docent_id}, les_id: {new_les_id[0]}, aanwezigheid = 0')
+            inschrijving = LesInschrijving(studentnummer=x, docent_id=docent_id, les_id=new_les_id[0], aanwezigheid_check="Afwezig")
+            db.session.add(inschrijving)
+            db.session.commit()
 
-    for x in set(studenten):
-        #print(f'Nieuwe inschrijving! Studentnummer: {x}, Docent id: {docent_id}, les_id: {new_les_id[0]}, aanwezigheid = 0')
-        inschrijving = LesInschrijving(studentnummer=x, docent_id=docent_id, les_id=new_les_id[0], aanwezigheid_check="Afwezig")
-        db.session.add(inschrijving)
+        # print(f"Nieuwe les! Vak: {request.json['vak']} met als id: {Vak.query.filter_by(vak = lesvak).first().vak_id}, de docent is: {docent} met id {Docent.query.filter_by(naam=docent).first().docent_id}, Datum: {request.json['datum']}, De klassen: {request.json['klassen']}, Extra Studenten: {request.json['studenten']}")
+        newlesson = Les(vak_id=int(Vak.query.filter_by(vak = lesvak).first().vak_id), datum=datetime.strptime(request.json['datum'], datetimeformat), les_id=new_les_id[0])
+        db.session.add(newlesson)
         db.session.commit()
-
-    # print(f"Nieuwe les! Vak: {request.json['vak']} met als id: {Vak.query.filter_by(vak = lesvak).first().vak_id}, de docent is: {docent} met id {Docent.query.filter_by(naam=docent).first().docent_id}, Datum: {request.json['datum']}, De klassen: {request.json['klassen']}, Extra Studenten: {request.json['studenten']}")
-    newlesson = Les(vak_id=int(Vak.query.filter_by(vak = lesvak).first().vak_id), datum=datetime.strptime(request.json['datum'], datetimeformat))
-    db.session.add(newlesson)
-    db.session.commit()
-    return "Les toegevoegd"
+        return "Les toegevoegd"
+    except TypeError as e:
+        print(e)
 
 @app.route("/docenten", methods = ['POST', 'GET'])
 def docenten():
