@@ -73,7 +73,7 @@ class KlasInschrijving(db.Model):
     klascode = db.Column(db.Integer, db.ForeignKey('klas.klascode'), nullable=False)
 
 class LesInschrijving(db.Model):
-    id = db.Column(db.Integer, primary_key=True, nullable=False, unique=True)
+    id = db.Column(db.Integer, primary_key=True, unique=True)
     studentnummer = db.Column(db.Integer, db.ForeignKey('student.studentnummer'), nullable=False)
     docent_id = db.Column(db.Integer, db.ForeignKey('docent.docent_id'), nullable=False)
     les_id = db.Column(db.Integer, db.ForeignKey('les.les_id'), nullable=False)
@@ -242,23 +242,41 @@ def getlessen():
 @app.route("/addlesson", methods = ['GET', 'POST'])
 def addlesson():
 
-    def retrievenames(klas):
+    def retrievestudents(klas):
         tests = KlasInschrijving.query.filter_by(klascode = klas).all()
         studenten = []
         for test in tests:
             case = test.student.studentnummer
             studenten.append(case)
         return studenten
+
     #Sets datetime format
     datetimeformat = '%Y-%m-%dT%H:%M'
+
+    # creates a single uuid 
+    new_les_id = []
+    uuid_gen = str(uuid.uuid4())
+    new_les_id.append(uuid_gen)
+
+    # retrieves json 
     lesvak = request.json['vak']
+    docent = request.json['docent']
+    docent_id = Docent.query.filter_by(naam=str(docent)).first().docent_id
 
     #retrieves students
     studenten = []
     for item in ast.literal_eval(request.json['klassen']):
-        studenten.extend(retrievenames(item))
-    print(studenten) 
-    #print(f"Nieuwe les! Vak: {request.json['vak']} met als id: {Vak.query.filter_by(vak = lesvak).first().vak_id}, de docent is: {request.json['docent']}, Datum: {request.json['datum']}, De klassen: {request.json['klassen']}, Extra Studenten: {request.json['studenten']}")
+        studenten.extend(retrievestudents(item))
+    for item in ast.literal_eval(request.json['studenten']):
+        studenten.append(Student.query.filter_by(naam=item).first().studentnummer)
+
+    for x in set(studenten):
+        #print(f'Nieuwe inschrijving! Studentnummer: {x}, Docent id: {docent_id}, les_id: {new_les_id[0]}, aanwezigheid = 0')
+        inschrijving = LesInschrijving(studentnummer=x, docent_id=docent_id, les_id=new_les_id[0], aanwezigheid_check="Afwezig")
+        db.session.add(inschrijving)
+        db.session.commit()
+
+    # print(f"Nieuwe les! Vak: {request.json['vak']} met als id: {Vak.query.filter_by(vak = lesvak).first().vak_id}, de docent is: {docent} met id {Docent.query.filter_by(naam=docent).first().docent_id}, Datum: {request.json['datum']}, De klassen: {request.json['klassen']}, Extra Studenten: {request.json['studenten']}")
     newlesson = Les(vak_id=int(Vak.query.filter_by(vak = lesvak).first().vak_id), datum=datetime.strptime(request.json['datum'], datetimeformat))
     db.session.add(newlesson)
     db.session.commit()
