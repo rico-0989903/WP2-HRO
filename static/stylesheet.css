@@ -1,12 +1,12 @@
 body{
     background-color: rgb(255, 247, 234);
     margin: 0px;
+
 }
 main{
     margin-left: 5rem;
     padding: 1rem;
 }
-
 
 #homebutton{
     position: relative;
@@ -30,6 +30,7 @@ main{
     box-shadow: 1px 1px 5px black;
     
 }
+
 .navbar-nav{
     list-style: none;
     padding: 0px;
@@ -272,8 +273,10 @@ td{
 label {
     font-family: monospace;
     font-size: 1rem;
-    color : darkslategrey;
+    color : #001e48;
     font-weight: bold;
+    display: flex;
+    padding-bottom: 5px;
 }
 
 p.klas {
@@ -333,23 +336,128 @@ p {
 }
 
 .log-in {
-    max-width: 200px;
     padding: 5px;
+    text-align: center;
+    align-items: center;
 }
 
 .register {
-    max-width: 200px;
     padding: 5px;
+    text-align: center;
+    align-items: center;
 }
 
-.form-username {
-    margin: 10px;
+.redirect {
+    text-align: center;
+    align-items: center;
 }
 
-.form-password {
-    margin: 10px;
+.form-field {
+    width: 400px;
+    margin: auto;
+    position: relative;
+    padding: 10px;
 }
 
 .form-submit {
     margin: 10px;
+    align-items: center;
+    text-align: center;
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
+#page-text {
+    font-family: "Poppins", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 40px;
+    color: #001e48;
+    margin-top: 100px;
+    margin-bottom: 50px;
+    font-weight: 600;
+}
+
+input[id="username"] {
+    outline: none;
+    display: block;
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    padding-left: 0;
+    padding-right: 0;
+    border-radius: 0;
+    border: 0;
+    border-bottom: 2px solid #001e48;
+    background-color: transparent;
+    line-height: 1.38;
+    font-size: 2.2rem;
+    font-weight: 500;
+}
+
+input[id="password"] {
+    outline: none;
+    display: block;
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    padding-left: 0;
+    padding-right: 0;
+    border-radius: 0;
+    border: 0;
+    border-bottom: 2px solid #001e48;
+    background-color: transparent;
+    line-height: 1.38;
+    font-size: 2.2rem;
+    font-weight: 500;
+}
+
+input[id="submit"] {
+    padding: 12.5px 60px;
+    border-radius: 500px;
+    margin-bottom: 30px;
+    background-color: #d30f4c;
+    color: #ffffff;
+    border: none;
+    font-size: 1.2rem;
+}
+
+.error {
+    display: block;
+    position: relative;
+    -webkit-appearance: none;
+    appearance: none;
+    width: 396px;
+    padding: 12.5px 60px;
+    border-radius: 10px;
+    margin-top: 2px;
+    margin-left: auto;
+    margin-right: auto;
+    background-color: white;
+    color: black;
+    border: none;
+    font-size: 1rem;
+    font-family: monospace;
+}
+
+input[id="username"]:focus {
+    outline: none;
+    border-bottom: 4px solid #d30f4c;
+    bottom: -4px;
+}
+
+input[id="password"]:focus {
+    outline: none;
+    border-bottom: 4px solid #d30f4c;
+    bottom: -4px;
+}
+
+img[id="start-logo"] {
+    margin-left: 10px;
+    margin-right: 10px;
+    width: 8%;
+    display: flex;
+    margin-bottom: -60px;
 }

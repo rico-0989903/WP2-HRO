@@ -9,25 +9,28 @@
 </head>
 <body>
     <div class="register">
-        <h1>Register</h1>
-        <form method="post" action="">
+        <img src="{{ url_for('static', filename='Hogeschool-rotterdam-logo.webp') }}" alt="Hogeschool Rotterdam logo" id="start-logo">
+        <h1 id="page-text">Registeer</h1>
+        <form method="post" action="" autocomplete="off">
             {{ form.hidden_tag() }}
-            <div class="form-username">
+            <div class="form-field">
+                {{ form.username.label }}
                 {{ form.username }}
             </div>
-            <div class="form-password">
+            <div class="form-field">
+                {{ form.password.label }}
                 {{ form.password }}
-            </div>
-            <div class="form-submit">
-                {{ form.submit }}
             </div>
         {% if error %}
             <div class="error"><strong>Error:</strong> {{ error }} </div>
         {% endif %}
+            <div class="form-submit">
+                {{ form.submit }}
+            </div>
         </form>
+        <div class="redirect">
+            <a href="{{ url_for('login') }}">Heb je al een account? Log in!</a>
+        </div> 
     </div>
-
-    <a href="{{ url_for('login') }}">Already have an account? Login</a>
-    
 </body>
 </html>

@@ -1,3 +1,4 @@
+# import libraries
 import os
 import qrcode
 from datetime import datetime
@@ -5,7 +6,6 @@ from flask import Flask, render_template, jsonify, request, url_for, redirect, s
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
 from marshmallow import fields
-from flask_login import UserMixin, LoginManager
 from wtforms import StringField, PasswordField, SubmitField
 from wtforms.validators import InputRequired, Length
 from flask_wtf import FlaskForm
@@ -23,14 +23,6 @@ db = SQLAlchemy(app)
 ma = Marshmallow(app)
 
 app.app_context().push()
-
-login_manager = LoginManager()
-login_manager.init_app(app)
-login_manager.login_view = 'login'
-
-@login_manager.user_loader
-def load_user(user_id):
-    return gebruikers.query.get(int(user_id))
 
 #Database models
 class Student(db.Model):
@@ -78,7 +70,7 @@ class LesInschrijving(db.Model):
     aanwezigheid_check = db.Column(db.Integer, nullable=False)
     afwezigheid_rede = db.Column(db.String(200), nullable=True)
 
-class gebruikers(db.Model, UserMixin):
+class gebruikers(db.Model):
     id = db.Column(db.Integer, primary_key=True, nullable=False, unique=True)
     username = db.Column(db.String(20), db.ForeignKey('student.studentnummer') ,nullable=False, unique=True)
     password = db.Column(db.String(150), nullable=False)
@@ -125,45 +117,60 @@ class gebruikersSchema(ma.Schema):
     password = fields.String()
     rights = fields.String()
 
+# Init schema
 student_schema = StudentSchema(many=True)
 docent_schema = DocentSchema(many=True)
 klas_schema = KlasSchema(many=True)
 les_schema = LesSchema(many=True)
+vak_schema = VakSchema(many=True)
 klasinschrijving_schema = KlasInschrijvingSchema(many=True)
 lesinschrijving_schema = LesInschrijvingSchema(many=True)
 gebruikers_schema = gebruikersSchema(many=True)
 
-
+# flask form register
 class RegisterForm(FlaskForm):
-    username = StringField(validators=[
-                           InputRequired(), Length(min=3, max=20)], render_kw={"placeholder": "Username"})
+    username = StringField("Studentnummer of personeelscode", validators=[
+                           InputRequired(), Length(min=3, max=20)])
 
-    password = PasswordField(validators=[
-                             InputRequired(), Length(min=8, max=150)], render_kw={"placeholder": "Password"})
+    password = PasswordField("Wachtwoord", validators=[
+                             InputRequired(), Length(min=8, max=150)])
 
-    submit = SubmitField('Register')
+    submit = SubmitField('Registeer')
 
+# flask form login
 class LoginForm(FlaskForm):
-    username = StringField(validators=[
-                           InputRequired(), Length(min=3, max=20)], render_kw={"placeholder": "Username"})
+    username = StringField("Studentnummer of personeelscode", validators=[
+                           InputRequired(), Length(min=3, max=20)])
 
-    password = PasswordField(validators=[
-                             InputRequired(), Length(min=8, max=150)], render_kw={"placeholder": "Password"})
+    password = PasswordField("Wachtwoord", validators=[
+                             InputRequired(), Length(min=8, max=150)])
 
-    submit = SubmitField('Login')
+    submit = SubmitField('Inloggen')
+
+# save url for redirect after login
+def save_url(url):
+    session['url'] = request.url
+    url = session['url']
 
 @app.before_request
 def before_request():
     if "user" not in session and request.endpoint not in ['login', 'register', 'static', 'index']:
+        save_url(request.url)
         return redirect(url_for('login'))
 
 @app.route("/")
 def index():
     if "user" in session:
-        return redirect(url_for('home'))
+        check_rights = gebruikers.query.filter_by(username=session['user']).first()
+        if check_rights.rights == "True":
+            session['rights'] == True
+            return redirect(url_for('docenthome'))
+        else:
+            return redirect(url_for('studenthome'))
     else:
         return redirect(url_for('login'))
 
+# register form handling
 @app.route("/register", methods=['GET', 'POST'])
 def register():
     form = RegisterForm()
@@ -186,6 +193,7 @@ def register():
         
     return render_template('register.html', form=form)
 
+# login form handling
 @app.route("/login" , methods=['GET', 'POST'])
 def login():
     form = LoginForm()
@@ -197,43 +205,69 @@ def login():
                 check_rights = gebruikers.query.filter_by(username=user.username).first()
                 if check_rights.rights == "True":
                     session['rights'] = True
-                else:
-                    session['rights'] = False
-                return redirect(url_for('home'))
+                    return redirect(url_for('docenthome'))
+                elif check_rights.rights == "False": 
+                    try:
+                        if session['url'] != "":
+                            session['rights'] = False
+                            return redirect(session['url'])
+                        else:
+                            session['rights'] = False
+                            return redirect(url_for('studenthome'))
+                    except:
+                        session['rights'] = False
+                        return redirect(url_for('studenthome'))
             else:
-                error = "Invalid username or password"
+                error = "Ongeldige gebruikersnaam of wachtwoord"
                 return render_template('login.html', form=form, error=error)
         else:
-            error = "Invalid username or password"
+            error = "Ongeldige gebruikersnaam of wachtwoord"
             return render_template('login.html', form=form, error=error)
         
     return render_template('login.html', form=form)
 
+# logout
 @app.route('/logout')
 def logout():
     session.pop('user', None)
+    session.pop('rights', None)
     return redirect(url_for('index'))
 
-@app.route("/home")
-def home():
-    return render_template('home.html')
+# student home
+@app.route("/home/student")
+def studenthome():
+    return render_template('studenthome.html')
 
+# docent home
+@app.route("/home/docent")
+def docenthome():
+    return render_template('docenthome.html')
+
+# student lessen
 @app.route("/lessen")
 def lessen():
+    if session['rights'] == False:
         return render_template('lessen.html')
+    else:
+        return render_template('docentlessen.html')
 
+# get lessons for student
 @app.route("/getstudentlessen", methods = ['POST', 'GET'])
 def getstudentlessen():
-    tests = LesInschrijving.query.filter_by(studentnummer = session['user']).all()
+    if session['rights'] == False:
+        tests = LesInschrijving.query.filter_by(studentnummer = session['user']).all()
 
-    lessen = []
-    for test in tests:
-        case = {"id": test.id, "studentnummer": test.student.studentnummer, "docent_id": test.docent.docent_id,
+        lessen = []
+        for test in tests:
+            case = {"id": test.id, "studentnummer": test.student.studentnummer, "docent_id": test.docent.docent_id,
                 "les_id": test.les.les_id, "aanwezigheid": test.aanwezigheid_check,
                 "afwezigheid_reden": test.afwezigheid_rede, "vak_id": test.les.vak_id, "datum": test.les.datum, "vak": Vak.query.filter_by(vak_id = test.les.vak_id).first().vak}
-        lessen.append(case)
-    return jsonify(lessen)
+            lessen.append(case)
+        return jsonify(lessen)
+    else:
+        return render_template('docentlessen.html')
 
+# get lessons for docent
 @app.route("/getlessen", methods = ['GET'])
 def getlessen():
     if session['rights'] == True:
@@ -241,8 +275,9 @@ def getlessen():
         lesresult = les_schema.dump(lessen)
         return jsonify(lesresult)
     else:
-        return "Jij hebt geen recht"
+        return "Dit is alleen voor docenten"
 
+# add lessons
 @app.route("/addlesson", methods = ['POST'])
 def addlesson():
     if session['rights'] == True:
@@ -253,15 +288,17 @@ def addlesson():
         db.session.commit()
         return "Les toegevoegd"
     else:
-        return "Jij hebt geen recht"
+        return render_template('studenthome.html')
 
+# lessons for docent
 @app.route("/docenten", methods = ['POST', 'GET'])
 def docenten():
     if session['rights'] == True:
         return render_template('docenten.html')
     else:
-        return "Jij hebt geen recht"
+        return render_template('studenthome.html')
 
+# get docenten for klas
 @app.route("/getdocenten", methods = ["POST", "GET"])
 def getdocenten():
     if session['rights'] == True:
@@ -269,15 +306,17 @@ def getdocenten():
         result = docent_schema.dump(docenten)
         return jsonify(result)
     else:
-        return "Jij hebt geen recht"
+        return "Dit is alleen voor docenten"
 
+# get klas
 @app.route("/klassen")
 def klassen():
     if session['rights'] == True:
         return render_template('klassen.html')
     else:
-        return "Jij hebt geen recht"
-    
+        return "Dit is alleen voor docenten"
+
+# students for klas
 @app.route("/klas/<klas>/studenten")
 def klas(klas):
     query1 = Klas.query.filter_by(klascode = str(klas)).first()
@@ -321,43 +360,73 @@ def getstudenten(klas):
         studenten.append(case)
     return jsonify(studenten)
 
+# track student attendance
 @app.route("/les/<les>/aanwezigheid")
 def aanwezigheid(les):
-    tests = Les.query.filter_by(les_id = les).first()
-    lesnaam = tests.vak1.vak
-    les = tests.les_id
-    img = qrcode.make(f"http://127.0.0.1:5000/les/{les}")
-    img.save('static/qr.png')
-    img = url_for('static', filename='qr.png')
-    return render_template('aanwezigheid.html', lesnaam=lesnaam, les_id=les, img=img)
+    if session['rights'] == True:
+        tests = Les.query.filter_by(les_id = les).first()
+        lesnaam = tests.vak1.vak
+        les = tests.les_id
+        img = qrcode.make(f"http://127.0.0.1:5000/inschrijven/{les}")
+        img.save('static/qr.png')
+        img = url_for('static', filename='qr.png')
+        return render_template('aanwezigheid.html', lesnaam=lesnaam, les_id=les, img=img)
+    else:
+        return "Dit is alleen voor docenten"
 
+# get student attendance   
 @app.route("/les/<les>/getaanwezigheid", methods = ['POST', 'GET'])
 def lesaanwezigheid(les):
-    tests = LesInschrijving.query.filter_by(les_id = str(les)).all()
-    aanwezigheid = []
-    for test in tests:
-        case = {"naam": test.student.naam, "studentnummer": test.student.studentnummer, "aanwezigheid": test.aanwezigheid_check, "afwezigheid_reden": test.afwezigheid_rede}
-        aanwezigheid.append(case)
-    return jsonify(aanwezigheid)
+    if session['rights'] == True:
+        tests = LesInschrijving.query.filter_by(les_id = str(les)).all()
+        aanwezigheid = []
+        for test in tests:
+            case = {"naam": test.student.naam, "studentnummer": test.student.studentnummer, "aanwezigheid": test.aanwezigheid_check, "afwezigheid_reden": test.afwezigheid_rede}
+            aanwezigheid.append(case)
+        return jsonify(aanwezigheid)
+    else:
+        return "Dit is alleen voor docenten"
 
+# submit student attendance  
 @app.route("/inschrijven/<les>")
 def aanwezig(les):
-        return render_template('form.html', les=les)
+    check = LesInschrijving.query.filter_by(les_id = les, studentnummer = session['user']).first()
+    if check:
+        if session['rights'] == False:
+            try:
+                if session['url']:
+                    session['url'] = ""
+                    vak_naam = Les.query.filter_by(les_id = les).first().vak1.vak
+                    studentnummer = session['user']
+                    naam = Student.query.filter_by(studentnummer = studentnummer).first().naam
+                    return render_template('form.html', vak=vak_naam, les=les, naam=str(naam), studentnummer=str(studentnummer))
+                else:
+                    return redirect(url_for('studenthome'))
+            except:
+                return redirect(url_for('studenthome'))
+        else:
+            return redirect(url_for('docenthome'))
+    else:
+        return redirect(url_for('studenthome'))
 
+# submit student attendance
 @app.route("/test/<les>", methods = ['POST','GET'])
 def test(les):
-    tests = LesInschrijving.query.filter_by(les_id = str(les)).all()
-    aanwezigheid = []
-    for test in tests:
-        case = {"naam": test.student.naam, "studentnummer": test.student.studentnummer, "aanwezigheid": test.aanwezigheid_check, "afwezigheid_reden": test.afwezigheid_rede}
-        aanwezigheid.append(case)
-    return jsonify(aanwezigheid)
+    if session['rights'] == True:
+        tests = LesInschrijving.query.filter_by(les_id = str(les)).all()
+        aanwezigheid = []
+        for test in tests:
+            case = {"naam": test.student.naam, "studentnummer": test.student.studentnummer, "aanwezigheid": test.aanwezigheid_check, "afwezigheid_reden": test.afwezigheid_rede}
+            aanwezigheid.append(case)
+        return jsonify(aanwezigheid)
+    else:
+        return "Dit is alleen voor docenten"
 
+# submit student attendance
 @app.route("/<les>/aanwezig", methods = ['POST', 'GET', 'PUT'])
 def data(les):
     studentnummer = request.json['studentnummer']
     data = LesInschrijving.query.filter_by(les_id = str(les), studentnummer = studentnummer).first()
-    print(data)
     data.aanwezigheid_check = 1
     db.session.commit()
     return jsonify("Gelukt")

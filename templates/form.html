@@ -1,26 +1,32 @@
-{% extends "index.html" %}
+{% extends "studentindex.html" %}
 
 {% block form %}
-<p>Aanwezigheid voor les {{les}}!</p>
+<p>Aanwezigheid voor {{vak}}!</p>
 <form id="form">
-    <label>Naam:</label>
+    <label>Naam: {{  naam  }}</label>
     <br>
-    <input type="text" id="naam">
+    <input type="hidden" id="naam" value="{{ naam }}">
     <br>
-    <label>Studentnummer:</label>
-    <br>  
-    <input type="number" id="studentnummer">
-    <br><br>
-    <button class="button" onclick="submit_entry();">Aanwezig</button>
+    <label>Studentnummer: {{  studentnummer  }}</label>
+    <br>
+    <input type="hidden" id="studentnummer" value="{{ studentnummer }}">
+    <div id="btn" style="display: block;">
+    <br>
+    <button class="button" id="btn-form" onclick="submit_entry();">Aanmelden</button>
+    </div>
 </form>
+<div id="confirm" style="display: none;">
+    <strong><p>je bent succesvol aangemeld voor {{ vak }}</p></strong>
+</div>
+
 <script>
     $("form").submit(function(e) {
     e.preventDefault();
     });
     function submit_entry(){
         try{
-            var naam = document.getElementById('naam');
-            var studentnummer = document.getElementById('studentnummer');
+            var naam = document.getElementById("naam");
+            var studentnummer = document.getElementById("studentnummer");
 
             var entry = {
                 naam: naam.value,
@@ -42,5 +48,12 @@
 
     }
 
+    var nextStep = document.querySelector('#btn-form');
+      
+      nextStep.addEventListener('click', function (e) {
+        e.preventDefault();
+        document.getElementById('btn').style.display = 'none';
+        document.getElementById('confirm').style.display = 'block';
+      });
 </script>
 {% endblock %}
