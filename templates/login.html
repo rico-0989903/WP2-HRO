@@ -8,26 +8,31 @@
     <title>Login</title>
 </head>
 <body>
+<div>
     <div class="log-in">
-    <h1>Login</h1>
-    <form method="post" action="">
-        {{ form.hidden_tag()}}
-        <div class="form-username">
-        {{ form.username }}
+        <img src="{{ url_for('static', filename='Hogeschool-rotterdam-logo.webp') }}" alt="Hogeschool Rotterdam logo" id="start-logo">
+        <h1 id="page-text">Inloggen</h1>
+        <form method="post" action="" autocomplete="off">
+            {{ form.hidden_tag() }}
+            <div class="form-field">
+                {{ form.username.label }}
+                {{ form.username }}
+            </div>
+            <div class="form-field">
+                {{ form.password.label }}
+                {{ form.password }}
+            </div>
+        {% if error %}
+            <div class="error"><strong>Error:</strong> {{ error }} </div>
+        {% endif %}
+            <div class="form-submit">
+                {{ form.submit }}
+            </div>
+        </form>
+        <div class="redirect">
+            <a href="{{ url_for('register') }}">Heb je nog geen account? Registeer!</a>
         </div>
-        <div class="form-password">
-        {{ form.password }}
-        </div>
-        <div class="form-submit">
-        {{ form.submit }}
-        </div>
-    {% if error %}
-        <div class="error"><strong>Error:</strong> {{ error }} </div>
-    {% endif %}
-    </form>
     </div>
-
-    <a href="{{ url_for('register') }}">Don't have an account? Register!</a>
-
+</div>
 </body>
 </html>

@@ -1,3 +1,4 @@
+# import libraries
 import os
 import qrcode
 from datetime import datetime
@@ -5,7 +6,6 @@ from flask import Flask, render_template, jsonify, request, url_for, redirect, s
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
 from marshmallow import fields
-from flask_login import UserMixin, LoginManager
 from wtforms import StringField, PasswordField, SubmitField
 from wtforms.validators import InputRequired, Length
 from flask_wtf import FlaskForm
@@ -117,37 +117,40 @@ class gebruikersSchema(ma.Schema):
     password = fields.String()
     rights = fields.String()
 
+# Init schema
 student_schema = StudentSchema(many=True)
 docent_schema = DocentSchema(many=True)
 klas_schema = KlasSchema(many=True)
 les_schema = LesSchema(many=True)
+vak_schema = VakSchema(many=True)
 klasinschrijving_schema = KlasInschrijvingSchema(many=True)
 lesinschrijving_schema = LesInschrijvingSchema(many=True)
 gebruikers_schema = gebruikersSchema(many=True)
 
-
+# flask form register
 class RegisterForm(FlaskForm):
-    username = StringField(validators=[
-                           InputRequired(), Length(min=3, max=20)], render_kw={"placeholder": "Username"})
+    username = StringField("Studentnummer of personeelscode", validators=[
+                           InputRequired(), Length(min=3, max=20)])
 
-    password = PasswordField(validators=[
-                             InputRequired(), Length(min=8, max=150)], render_kw={"placeholder": "Password"})
+    password = PasswordField("Wachtwoord", validators=[
+                             InputRequired(), Length(min=8, max=150)])
 
-    submit = SubmitField('Register')
+    submit = SubmitField('Registeer')
 
+# flask form login
 class LoginForm(FlaskForm):
-    username = StringField(validators=[
-                           InputRequired(), Length(min=3, max=20)], render_kw={"placeholder": "Username"})
+    username = StringField("Studentnummer of personeelscode", validators=[
+                           InputRequired(), Length(min=3, max=20)])
 
-    password = PasswordField(validators=[
-                             InputRequired(), Length(min=8, max=150)], render_kw={"placeholder": "Password"})
+    password = PasswordField("Wachtwoord", validators=[
+                             InputRequired(), Length(min=8, max=150)])
 
-    submit = SubmitField('Login')
+    submit = SubmitField('Inloggen')
 
+# save url for redirect after login
 def save_url(url):
     session['url'] = request.url
     url = session['url']
-    url.strip('http://localhost:5000')
 
 @app.before_request
 def before_request():
@@ -167,6 +170,7 @@ def index():
     else:
         return redirect(url_for('login'))
 
+# register form handling
 @app.route("/register", methods=['GET', 'POST'])
 def register():
     form = RegisterForm()
@@ -189,6 +193,7 @@ def register():
         
     return render_template('register.html', form=form)
 
+# login form handling
 @app.route("/login" , methods=['GET', 'POST'])
 def login():
     form = LoginForm()
@@ -202,42 +207,51 @@ def login():
                     session['rights'] = True
                     return redirect(url_for('docenthome'))
                 elif check_rights.rights == "False": 
-                    if session['url'] != "":
-                        session['rights'] = False
-                        return redirect(session['url'])
-                    else:
+                    try:
+                        if session['url'] != "":
+                            session['rights'] = False
+                            return redirect(session['url'])
+                        else:
+                            session['rights'] = False
+                            return redirect(url_for('studenthome'))
+                    except:
                         session['rights'] = False
                         return redirect(url_for('studenthome'))
             else:
-                error = "Invalid username or password"
+                error = "Ongeldige gebruikersnaam of wachtwoord"
                 return render_template('login.html', form=form, error=error)
         else:
-            error = "Invalid username or password"
+            error = "Ongeldige gebruikersnaam of wachtwoord"
             return render_template('login.html', form=form, error=error)
         
     return render_template('login.html', form=form)
 
+# logout
 @app.route('/logout')
 def logout():
     session.pop('user', None)
     session.pop('rights', None)
     return redirect(url_for('index'))
 
+# student home
 @app.route("/home/student")
 def studenthome():
     return render_template('studenthome.html')
 
+# docent home
 @app.route("/home/docent")
 def docenthome():
     return render_template('docenthome.html')
 
+# student lessen
 @app.route("/lessen")
 def lessen():
     if session['rights'] == False:
         return render_template('lessen.html')
     else:
-        return "Dit is alleen voor studenten"
+        return render_template('docentlessen.html')
 
+# get lessons for student
 @app.route("/getstudentlessen", methods = ['POST', 'GET'])
 def getstudentlessen():
     if session['rights'] == False:
@@ -251,8 +265,9 @@ def getstudentlessen():
             lessen.append(case)
         return jsonify(lessen)
     else:
-        return "Dit is alleen voor studenten"
+        return render_template('docentlessen.html')
 
+# get lessons for docent
 @app.route("/getlessen", methods = ['GET'])
 def getlessen():
     if session['rights'] == True:
@@ -262,6 +277,7 @@ def getlessen():
     else:
         return "Dit is alleen voor docenten"
 
+# add lessons
 @app.route("/addlesson", methods = ['POST'])
 def addlesson():
     if session['rights'] == True:
@@ -272,15 +288,17 @@ def addlesson():
         db.session.commit()
         return "Les toegevoegd"
     else:
-        return "Dit is alleen voor docenten"
+        return render_template('studenthome.html')
 
+# lessons for docent
 @app.route("/docenten", methods = ['POST', 'GET'])
 def docenten():
     if session['rights'] == True:
         return render_template('docenten.html')
     else:
-        return "Dit is alleen voor docenten"
+        return render_template('studenthome.html')
 
+# get docenten for klas
 @app.route("/getdocenten", methods = ["POST", "GET"])
 def getdocenten():
     if session['rights'] == True:
@@ -290,13 +308,15 @@ def getdocenten():
     else:
         return "Dit is alleen voor docenten"
 
+# get klas
 @app.route("/klassen")
 def klassen():
     if session['rights'] == True:
         return render_template('klassen.html')
     else:
         return "Dit is alleen voor docenten"
-    
+
+# students for klas
 @app.route("/klas/<klas>/studenten")
 def klas(klas):
     if session['rights'] == True:
@@ -304,6 +324,7 @@ def klas(klas):
     else:
         return "Dit is alleen voor docenten"
     
+# get students for klas
 @app.route("/<klas>/getstudenten", methods = ['POST', 'GET'])
 def getstudenten(klas):
     if session['rights'] == True:
@@ -316,6 +337,7 @@ def getstudenten(klas):
     else:
         return "Dit is alleen voor docenten"
 
+# track student attendance
 @app.route("/les/<les>/aanwezigheid")
 def aanwezigheid(les):
     if session['rights'] == True:
@@ -328,7 +350,8 @@ def aanwezigheid(les):
         return render_template('aanwezigheid.html', lesnaam=lesnaam, les_id=les, img=img)
     else:
         return "Dit is alleen voor docenten"
-    
+
+# get student attendance   
 @app.route("/les/<les>/getaanwezigheid", methods = ['POST', 'GET'])
 def lesaanwezigheid(les):
     if session['rights'] == True:
@@ -340,25 +363,30 @@ def lesaanwezigheid(les):
         return jsonify(aanwezigheid)
     else:
         return "Dit is alleen voor docenten"
-    
+
+# submit student attendance  
 @app.route("/inschrijven/<les>")
 def aanwezig(les):
     check = LesInschrijving.query.filter_by(les_id = les, studentnummer = session['user']).first()
     if check:
         if session['rights'] == False:
-            if session['url']:
-                session['url'] = ""
-                vak_naam = Les.query.filter_by(les_id = les).first().vak1.vak
-                studentnummer = session['user']
-                naam = Student.query.filter_by(studentnummer = studentnummer).first().naam
-                return render_template('form.html', vak=vak_naam, les=les, naam=str(naam), studentnummer=str(studentnummer))
-            else:
+            try:
+                if session['url']:
+                    session['url'] = ""
+                    vak_naam = Les.query.filter_by(les_id = les).first().vak1.vak
+                    studentnummer = session['user']
+                    naam = Student.query.filter_by(studentnummer = studentnummer).first().naam
+                    return render_template('form.html', vak=vak_naam, les=les, naam=str(naam), studentnummer=str(studentnummer))
+                else:
+                    return redirect(url_for('studenthome'))
+            except:
                 return redirect(url_for('studenthome'))
         else:
             return redirect(url_for('docenthome'))
     else:
         return redirect(url_for('studenthome'))
 
+# submit student attendance
 @app.route("/test/<les>", methods = ['POST','GET'])
 def test(les):
     if session['rights'] == True:
@@ -370,7 +398,8 @@ def test(les):
         return jsonify(aanwezigheid)
     else:
         return "Dit is alleen voor docenten"
-    
+
+# submit student attendance
 @app.route("/<les>/aanwezig", methods = ['POST', 'GET', 'PUT'])
 def data(les):
     studentnummer = request.json['studentnummer']
