@@ -41,7 +41,7 @@
         </ul>
     </nav>
     <main>
-        {% block qr %}{% endblock %}
+        
         {% block aanwezig %}{% endblock %}
         {% block form %}{% endblock %}
         {% block home %}{% endblock %}
@@ -49,7 +49,10 @@
         {% block klas %}{% endblock %}
         {% block les %}{% endblock %}
         {% block studenten %}{% endblock %}
+        <div class="container-qr">
+        {% block qr %}{% endblock %}
         {% block aanwezigheid %}{% endblock %}
+        </div>
     </main>
 </body>
 </html>

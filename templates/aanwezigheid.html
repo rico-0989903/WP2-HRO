@@ -1,12 +1,11 @@
 {% extends "docentindex.html" %}
-
 {% block qr %}
-<img src="{{img}}">
+    <img src="{{img}}", id="qrcode-img">
 {% endblock %}
 
 {% block aanwezigheid %}
-
-<h2>Studenten in les: {{  lesnaam  }}</h2>
+<div class="nochange">
+    <p>Studenten in les: {{  lesnaam  }}</p>
     <table>
         <thead>
             <tr>
@@ -19,6 +18,7 @@
 
         </tbody>
     </table>
+</div>
 <script>
     const fetch_aanwezigheid = async () => {
     try {

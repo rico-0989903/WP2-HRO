@@ -496,3 +496,15 @@ img[id="start-logo"] {
     display: flex;
     margin-bottom: -60px;
 }
+
+.container-qr{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 1rem;
+    justify-content: space-evenly;
+}
+
+.container-qr img{
+    box-shadow: 0px 0px 10px 1px black;
+}

@@ -166,9 +166,9 @@ def index():
         check_rights = gebruikers.query.filter_by(username=session['user']).first()
         if check_rights.rights == "True":
             session['rights'] == True
-            return redirect(url_for('docenthome'))
+            return redirect(url_for('home'))
         else:
-            return redirect(url_for('studenthome'))
+            return redirect(url_for('home'))
     else:
         return redirect(url_for('login'))
 
@@ -179,10 +179,17 @@ def register():
     if form.validate_on_submit():
         existing_user = gebruikers.query.filter_by(username=form.username.data).first()
         user = Student.query.filter_by(studentnummer=form.username.data).first()
+        docent = Docent.query.filter_by(docent_id=form.username.data).first()
         if existing_user is None:
             if user:
                 hashed_password = generate_password_hash(form.password.data, method='sha256')
                 new_user = gebruikers(username=form.username.data, password=hashed_password, rights="False")
+                db.session.add(new_user)
+                db.session.commit()
+                return redirect(url_for('login'))
+            elif docent:
+                hashed_password = generate_password_hash(form.password.data, method='sha256')
+                new_user = gebruikers(username=form.username.data, password=hashed_password, rights="True")
                 db.session.add(new_user)
                 db.session.commit()
                 return redirect(url_for('login'))
@@ -275,7 +282,8 @@ def getlessen():
         tests = Les.query.all()
         studenten = []
         for test in tests:
-            case = {"vak_id": test.vak_id, "les_id": test.les_id, "datum": test.datum, "vak": Vak.query.filter_by(vak_id = test.vak_id).first().vak}
+            case = {"vak_id": test.vak_id, "les_id": test.les_id, "datum": test.datum, 
+                    "vak": Vak.query.filter_by(vak_id = test.vak_id).first().vak}
             studenten.append(case)
         return jsonify(studenten)
     else:
@@ -335,11 +343,15 @@ def docenten():
         klassen = Klas.query.all()
         vakken = Vak.query.all()
         docenten = Docent.query.all()
+        les = Les.query.all()
+        les = []
         students = []
         classes = []
         subjects = []
         teachers = []
 
+        for les in les:
+            les.append(les.les_id)
         for student in studenten:
             students.append(student.naam)
         for klas in klassen:
@@ -348,7 +360,7 @@ def docenten():
             subjects.append(vak.vak)
         for docent in docenten:
             teachers.append(docent.naam)
-        return render_template('docenten.html', studenten=students, klassen=classes, vakken=subjects, docenten=teachers)
+        return render_template('docenten.html', studenten=students, klassen=classes, vakken=subjects, docenten=teachers, les_id=les)
     else:
         return render_template('studenthome.html')
 
@@ -455,7 +467,7 @@ def getklassen():
 @app.route("/les/<les>/getaanwezigheid", methods=['POST', 'GET'])
 def lesaanwezigheid(les):
     if session['rights'] == True:
-        tests = LesInschrijving.query.filter_by(les_id = str(les)).all()
+        tests = LesInschrijving.query.filter_by(les_id = str(les)).order_by(LesInschrijving.aanwezigheid_check).all()
         aanwezigheid = []
         for test in tests:
             case = {"naam": test.student.naam, "studentnummer": test.student.studentnummer, "aanwezigheid": test.aanwezigheid_check, "afwezigheid_reden": test.afwezigheid_rede}
@@ -478,13 +490,13 @@ def aanwezig(les):
                     naam = Student.query.filter_by(studentnummer = studentnummer).first().naam
                     return render_template('form.html', vak=vak_naam, les=les, naam=str(naam), studentnummer=str(studentnummer))
                 else:
-                    return redirect(url_for('studenthome'))
+                    return redirect(url_for('home'))
             except:
-                return redirect(url_for('studenthome'))
+                return redirect(url_for('home'))
         else:
-            return redirect(url_for('docenthome'))
+            return redirect(url_for('home'))
     else:
-        return redirect(url_for('studenthome'))
+        return redirect(url_for('home'))
 
 # submit student attendance
 @app.route("/test/<les>", methods = ['POST','GET'])
@@ -510,4 +522,4 @@ def data(les):
 
 
 if __name__ == '__main__':
-    app.run(host="145.137.4.152", debug=True)
+    app.run(host="localhost", debug=True)
