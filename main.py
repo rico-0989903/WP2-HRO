@@ -415,15 +415,6 @@ def getstudenten(klas):
         studenten.append(case)
     return jsonify(studenten)
 
-@app.route("/klas/<klas>/lessen", methods = ['POST', 'GET'])
-def studentlessen(klas):
-    tests = Les.query.all()
-    les = []
-    for test in tests:
-        case = {"vak": test.vak1.vak, "datum": test.datum, "les_id": test.les_id}
-        les.append(case)
-    return render_template('lessen.html', klas=klas, les=les)
-
 # track student attendance
 @app.route("/les/<les>/aanwezigheid")
 def aanwezigheid(les):
