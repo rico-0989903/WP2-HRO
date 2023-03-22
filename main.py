@@ -166,9 +166,9 @@ def index():
         check_rights = gebruikers.query.filter_by(username=session['user']).first()
         if check_rights.rights == "True":
             session['rights'] == True
-            return redirect(url_for('docenthome'))
+            return redirect(url_for('home'))
         else:
-            return redirect(url_for('studenthome'))
+            return redirect(url_for('home'))
     else:
         return redirect(url_for('login'))
 
@@ -179,10 +179,17 @@ def register():
     if form.validate_on_submit():
         existing_user = gebruikers.query.filter_by(username=form.username.data).first()
         user = Student.query.filter_by(studentnummer=form.username.data).first()
+        docent = Docent.query.filter_by(docent_id=form.username.data).first()
         if existing_user is None:
             if user:
                 hashed_password = generate_password_hash(form.password.data, method='sha256')
                 new_user = gebruikers(username=form.username.data, password=hashed_password, rights="False")
+                db.session.add(new_user)
+                db.session.commit()
+                return redirect(url_for('login'))
+            elif docent:
+                hashed_password = generate_password_hash(form.password.data, method='sha256')
+                new_user = gebruikers(username=form.username.data, password=hashed_password, rights="True")
                 db.session.add(new_user)
                 db.session.commit()
                 return redirect(url_for('login'))
@@ -510,4 +517,4 @@ def data(les):
 
 
 if __name__ == '__main__':
-    app.run(host="145.137.4.152", debug=True)
+    app.run(host="localhost", debug=True)

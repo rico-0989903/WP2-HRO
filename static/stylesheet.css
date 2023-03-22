@@ -26,6 +26,14 @@ main{
     border-radius: 5px;
 }
 
+.docentfilter{
+    box-sizing: border-box;
+    padding: 14px 20px 12px 45px;
+    border: none;
+    border-radius: 5px;
+    margin-bottom: 20px;
+}
+
 #homebutton{
     position: relative;
     color: rgb(62, 219, 62);

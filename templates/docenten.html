@@ -43,17 +43,25 @@
                 <button id="newlesson" class="lessonmaker">Maak nieuwe les</button>
             </div>
         </article>
-        <table>
-            <thead>
-                <tr>
-                    <th>Vak</th>
-                    <th>Datum</th>
-                </tr>
-            </thead>
-            <tbody id="lessen">
-        
-            </tbody>
-        </table>
+        <article>
+            <p>Filter op docent:</p>
+            <select name="docentenfilter" id="docentfilter" class="docentfilter">
+                {% for docent in docenten %}
+                <option value="{{docent}}">{{docent}}</option>
+                {% endfor %}
+            </select>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Vak</th>
+                        <th>Datum</th>
+                    </tr>
+                </thead>
+                <tbody id="lessen">
+            
+                </tbody>
+            </table>
+        </article>
 
 
     <script>
