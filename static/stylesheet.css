@@ -1,12 +1,14 @@
 body{
     background-color: rgb(255, 247, 234);
     margin: 0px;
+
 }
 main{
     margin-left: 5rem;
     padding: 1rem;
 }
 
+<<<<<<< HEAD
 #klassenlist {
     list-style-type: none;
     display: flex;
@@ -25,6 +27,8 @@ main{
     border-radius: 5px;
 }
 
+=======
+>>>>>>> d6995a1291583b0a7145db709bcb98412aa66fda
 #homebutton{
     position: relative;
     color: rgb(62, 219, 62);
@@ -47,6 +51,7 @@ main{
     box-shadow: 1px 1px 5px black;
     
 }
+
 .navbar-nav{
     list-style: none;
     padding: 0px;
@@ -197,6 +202,84 @@ tr {
     color: darkslategrey;
     font-weight: bold;
 }
+.container{
+    display: flex;
+    flex-direction: row;
+    gap: 10vw;
+    justify-content: center;
+}
+
+.newExpandDiv[aria-expanded="false"]{
+    display: none;
+}
+.delExpandDiv[aria-expanded="false"]{
+    display: none;
+}
+.newExpandDiv[aria-expanded="true"]{
+    display: block;
+}
+.delExpandDiv[aria-expanded="true"]{
+    display: block;
+}
+#namelistnew{
+    display: none;
+    list-style: none;
+    padding: 0;
+}
+#namelistnew:hover{
+    display: block;
+}
+#namelistdel{
+    display: none;
+    list-style: none;
+    padding: 0;
+}
+#namelistdel:hover{
+    display: block;
+}
+#newstudent:focus ~ #namelistnew{
+    display: block;
+}
+#delstudent:focus ~ #namelistdel{
+    display: block;
+}
+#naam:hover{
+    cursor: pointer;
+    text-shadow: 0px 0.5px 2px black;
+}
+.newExpand{
+    font-family: monospace;
+    font-size: 1rem;
+    font-weight: bold;
+    background-color: rgb(214, 0, 53);
+    color: white;
+    padding: 5px;
+    border: 1px solid black;
+    border-radius: 5px;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+    
+}
+.delExpand{
+    font-family: monospace;
+    font-size: 1rem;
+    font-weight: bold;
+    background-color: rgb(214, 0, 53);
+    color: white;
+    padding: 5px;
+    border: 1px solid black;
+    border-radius: 5px;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+}
+.newExpand:hover{
+    scale: 105%;
+    box-shadow: 0px 0px 5px 0.5px black;
+}
+.delExpand:hover{
+    scale: 105%;
+    box-shadow: 0px 0px 5px 0.5px black;
+}
 table{
     background-color: rgb(255, 247, 234);
     border-spacing: 0px;
@@ -210,7 +293,7 @@ th {
     font-weight: bold;
     text-align: left;
     background-color: rgb(209, 0, 65);
-    padding: 10px;
+    padding: 5px;
     border: solid 1px black;
 }
 td{
@@ -219,8 +302,10 @@ td{
 label {
     font-family: monospace;
     font-size: 1rem;
-    color : darkslategrey;
+    color : #001e48;
     font-weight: bold;
+    display: flex;
+    padding-bottom: 5px;
 }
 
 p.klas {
@@ -289,23 +374,128 @@ p {
 }
 
 .log-in {
-    max-width: 200px;
     padding: 5px;
+    text-align: center;
+    align-items: center;
 }
 
 .register {
-    max-width: 200px;
     padding: 5px;
+    text-align: center;
+    align-items: center;
 }
 
-.form-username {
-    margin: 10px;
+.redirect {
+    text-align: center;
+    align-items: center;
 }
 
-.form-password {
-    margin: 10px;
+.form-field {
+    width: 400px;
+    margin: auto;
+    position: relative;
+    padding: 10px;
 }
 
 .form-submit {
     margin: 10px;
+    align-items: center;
+    text-align: center;
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
+#page-text {
+    font-family: "Poppins", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 40px;
+    color: #001e48;
+    margin-top: 100px;
+    margin-bottom: 50px;
+    font-weight: 600;
+}
+
+input[id="username"] {
+    outline: none;
+    display: block;
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    padding-left: 0;
+    padding-right: 0;
+    border-radius: 0;
+    border: 0;
+    border-bottom: 2px solid #001e48;
+    background-color: transparent;
+    line-height: 1.38;
+    font-size: 2.2rem;
+    font-weight: 500;
+}
+
+input[id="password"] {
+    outline: none;
+    display: block;
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    padding-left: 0;
+    padding-right: 0;
+    border-radius: 0;
+    border: 0;
+    border-bottom: 2px solid #001e48;
+    background-color: transparent;
+    line-height: 1.38;
+    font-size: 2.2rem;
+    font-weight: 500;
+}
+
+input[id="submit"] {
+    padding: 12.5px 60px;
+    border-radius: 500px;
+    margin-bottom: 30px;
+    background-color: #d30f4c;
+    color: #ffffff;
+    border: none;
+    font-size: 1.2rem;
+}
+
+.error {
+    display: block;
+    position: relative;
+    -webkit-appearance: none;
+    appearance: none;
+    width: 396px;
+    padding: 12.5px 60px;
+    border-radius: 10px;
+    margin-top: 2px;
+    margin-left: auto;
+    margin-right: auto;
+    background-color: white;
+    color: black;
+    border: none;
+    font-size: 1rem;
+    font-family: monospace;
+}
+
+input[id="username"]:focus {
+    outline: none;
+    border-bottom: 4px solid #d30f4c;
+    bottom: -4px;
+}
+
+input[id="password"]:focus {
+    outline: none;
+    border-bottom: 4px solid #d30f4c;
+    bottom: -4px;
+}
+
+img[id="start-logo"] {
+    margin-left: 10px;
+    margin-right: 10px;
+    width: 8%;
+    display: flex;
+    margin-bottom: -60px;
 }
