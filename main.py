@@ -246,6 +246,7 @@ def logout():
 @app.route("/home")
 def home():
     if session['rights'] == True:
+        
         return render_template('docenthome.html')
     else:
         return render_template('studenthome.html')
