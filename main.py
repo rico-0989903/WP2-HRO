@@ -438,7 +438,8 @@ def studentgetlessen(klas):
     query = KlasInschrijving.query.filter_by(klascode = klasstr).first()
     tests = LesInschrijving.query.filter_by(studentnummer = query.student.studentnummer).all()
     for test in tests:
-        case = {"Docent" : test.docent.naam, "Vak" : test.les.vak1.vak}
+        datum = Les.query.filter_by(les_id = test.les_id).first()
+        case = {"Docent" : test.docent.naam, "Vak" : test.les.vak1.vak, "Datum" : datum.datum}
         les.append(case)
     return jsonify(les)
 
