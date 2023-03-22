@@ -438,8 +438,8 @@ def getklassen():
     else:
         return "Jij hebt geen recht"
 
-@app.route("/les/<les>")
-def aanwezigheid(les):
+@app.route("/les/<les>/getaanwezigheid", methods=['POST', 'GET'])
+def lesaanwezigheid(les):
     if session['rights'] == True:
         tests = LesInschrijving.query.filter_by(les_id = str(les)).all()
         aanwezigheid = []
