@@ -207,7 +207,7 @@ def login():
                 check_rights = gebruikers.query.filter_by(username=user.username).first()
                 if check_rights.rights == "True":
                     session['rights'] = True
-                    return redirect(url_for('docenthome'))
+                    return redirect(url_for('home'))
                 elif check_rights.rights == "False": 
                     try:
                         if session['url'] != "":
@@ -215,10 +215,10 @@ def login():
                             return redirect(session['url'])
                         else:
                             session['rights'] = False
-                            return redirect(url_for('studenthome'))
+                            return redirect(url_for('home'))
                     except:
                         session['rights'] = False
-                        return redirect(url_for('studenthome'))
+                        return redirect(url_for('home'))
             else:
                 error = "Ongeldige gebruikersnaam of wachtwoord"
                 return render_template('login.html', form=form, error=error)
@@ -236,20 +236,19 @@ def logout():
     return redirect(url_for('index'))
 
 # student home
-@app.route("/home/student")
-def studenthome():
-    return render_template('studenthome.html')
-
-# docent home
-@app.route("/home/docent")
-def docenthome():
-    return render_template('docenthome.html')
+@app.route("/home")
+def home():
+    if session['rights'] == True:
+        return render_template('docenthome.html')
+    else:
+        return render_template('studenthome.html')
+    
 
 # student lessen
 @app.route("/lessen")
 def lessen():
     if session['rights'] == False:
-        return render_template('lessen.html')
+        return render_template('studentlessen.html')
     else:
         return render_template('docenthome.html')
 
@@ -280,7 +279,7 @@ def getlessen():
             studenten.append(case)
         return jsonify(studenten)
     else:
-        return "Dit is alleen voor docenten"
+        return render_template('studenthome.html')
 
 @app.route("/addlesson", methods = ['GET', 'POST'])
 def addlesson():
