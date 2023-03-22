@@ -1,0 +1,58 @@
+{% extends "studentindex.html" %}
+
+{% block les %}
+<h1 id="klas">Overzicht van lessen</h1>
+<h2>Overzicht van je lessen</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Lessen</th>
+                <th>Tijd</th>
+            </tr>
+        </thead>
+        <tbody id="lessen">
+
+        </tbody>
+    </table>
+<script>
+    const fetch_lessen = async () => {
+    try {
+        const response = await fetch('/getstudentlessen', {
+            method: 'GET',
+            headers: {
+                'accept': 'application/json',
+                'Content-Type': 'application/json'
+            }
+        });
+        const data = await response.json();
+        console.log(data);
+        if (response.error) {
+            console.log("Some error with fetching JSON from highscore server")
+        } else if (!response.ok) {
+            console.log("Some non-200 HTTP response code")
+        } else {
+            set_lessen(data)
+        }
+    } catch (e) {
+        console.log("Some error with fetching JSON from highscore server: " + e)
+    }
+    }
+
+    function set_lessen(package) {
+    let lessen = document.getElementById("lessen")
+    lessen.replaceChildren()
+    package.forEach(function (les) {
+        lessen.innerHTML += `
+        <tr>
+            <td>${les["vak"]}</td>
+            <td>${les["datum"]}</td>
+        </tr>
+        `
+        })
+    }
+
+    fetch_lessen()
+    let interval_id = setInterval(fetch_lessen, 5000)
+
+</script>
+{% endblock %}

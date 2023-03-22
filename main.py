@@ -251,7 +251,7 @@ def lessen():
     if session['rights'] == False:
         return render_template('lessen.html')
     else:
-        return render_template('docentlessen.html')
+        return render_template('docenthome.html')
 
 # get lessons for student
 @app.route("/getstudentlessen", methods = ['POST', 'GET'])
@@ -267,7 +267,7 @@ def getstudentlessen():
             lessen.append(case)
         return jsonify(lessen)
     else:
-        return render_template('docentlessen.html')
+        return render_template('docenthome.html')
 
 # get lessons for docent
 @app.route("/getlessen", methods = ['GET'])
@@ -417,12 +417,18 @@ def getstudenten(klas):
 
 @app.route("/klas/<klas>/lessen", methods = ['POST', 'GET'])
 def studentlessen(klas):
-    tests = Les.query.all()
+    return render_template('docentlessen.html', klas=klas)
+
+@app.route("/klas/<klas>/getlessen", methods = ['POST', 'GET'])
+def studentgetlessen(klas):
+    klasstr = str(klas)
     les = []
+    query = KlasInschrijving.query.filter_by(klascode = klasstr).first()
+    tests = LesInschrijving.query.filter_by(studentnummer = query.student.studentnummer).all()
     for test in tests:
-        case = {"vak": test.vak1.vak, "datum": test.datum, "les_id": test.les_id}
+        case = {"Docent" : test.docent.naam, "Vak" : test.les.vak1.vak}
         les.append(case)
-    return render_template('lessen.html', klas=klas, les=les)
+    return jsonify(les)
 
 # track student attendance
 @app.route("/les/<les>/aanwezigheid")
@@ -505,4 +511,4 @@ def data(les):
 
 
 if __name__ == '__main__':
-    app.run(host="localhost", debug=True)
+    app.run(host="145.137.4.152", debug=True)

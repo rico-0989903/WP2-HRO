@@ -17,7 +17,7 @@
 <script>
     const fetch_lessen = async () => {
     try {
-        const response = await fetch('/getstudentlessen', {
+        const response = await fetch('/klas/{{klas}}/getlessen', {
             method: 'GET',
             headers: {
                 'accept': 'application/json',
@@ -44,8 +44,8 @@
     package.forEach(function (les) {
         lessen.innerHTML += `
         <tr>
-            <td>${les["vak"]}</td>
-            <td>${les["datum"]}</td>
+            <td>${les["Docent"]}</td>
+            <td>${les["Vak"]}</td>
         </tr>
         `
         })
