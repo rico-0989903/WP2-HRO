@@ -282,7 +282,9 @@ def getlessen():
         tests = Les.query.all()
         studenten = []
         for test in tests:
-            case = {"vak_id": test.vak_id, "les_id": test.les_id, "datum": test.datum, "vak": Vak.query.filter_by(vak_id = test.vak_id).first().vak}
+            lesin = LesInschrijving.query.filter(LesInschrijving.les_id == test.les_id, LesInschrijving.docent_id == 901).first()
+            les = Les.query.filter_by(les_id=lesin.les_id).first()
+            case = {"vak_id": les.vak_id, "les_id": les.les_id, "datum": les.datum, "vak": Vak.query.filter_by(vak_id = les.vak_id).first().vak}
             studenten.append(case)
         return jsonify(studenten)
     else:
