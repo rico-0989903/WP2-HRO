@@ -166,9 +166,9 @@ def index():
         check_rights = gebruikers.query.filter_by(username=session['user']).first()
         if check_rights.rights == "True":
             session['rights'] == True
-            return redirect(url_for('docenthome'))
+            return redirect(url_for('home'))
         else:
-            return redirect(url_for('studenthome'))
+            return redirect(url_for('home'))
     else:
         return redirect(url_for('login'))
 
@@ -239,6 +239,7 @@ def logout():
 @app.route("/home")
 def home():
     if session['rights'] == True:
+        
         return render_template('docenthome.html')
     else:
         return render_template('studenthome.html')
