@@ -6,6 +6,7 @@
 {% block aanwezigheid %}
 <div class="nochange">
     <p>Studenten in les: {{  lesnaam  }}</p>
+    <p id="counter"></p>
     <table>
         <thead>
             <tr>
@@ -45,6 +46,12 @@
         
     function set_aanwezigheid(package) {
     let aanwezigheid = document.getElementById("aanwezigheid")
+    let aanwezigcount = document.getElementById("counter")
+    aanwezigcount.replaceChildren()
+    aanwezigcount.innerHTML +=`
+        <p>Aantal aanwezigen: ${package[0]["aanwezig"]}</p> 
+        `
+    package = package.slice(1)
     aanwezigheid.replaceChildren()
     package.forEach(function (aanwezig) {
         if (aanwezig["aanwezigheid"] == 1) {
@@ -58,8 +65,10 @@
             <td>${aanwezig["aanwezigheid"]}</td>
         </tr>
         `
-        })
+        }) 
+    
     }
+    
     fetch_aanwezigheid()
     let interval_id = setInterval(fetch_aanwezigheid, 4000)
 

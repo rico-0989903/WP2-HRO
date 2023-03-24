@@ -450,7 +450,7 @@ def aanwezigheid(les):
         tests = Les.query.filter_by(les_id = les).first()
         lesnaam = tests.vak1.vak
         les = tests.les_id
-        img = qrcode.make(f"http://127.0.0.1:5000/inschrijven/{les}")
+        img = qrcode.make(f"http://localhost:5000/inschrijven/{les}")
         img.save('static/qr.png')
         img = url_for('static', filename='qr.png')
         return render_template('aanwezigheid.html', lesnaam=lesnaam, les_id=les, img=img)
@@ -470,7 +470,8 @@ def getklassen():
 def lesaanwezigheid(les):
     if session['rights'] == True:
         tests = LesInschrijving.query.filter_by(les_id = str(les)).order_by(LesInschrijving.aanwezigheid_check).all()
-        aanwezigheid = []
+        aanwezigcount = len(LesInschrijving.query.filter_by(les_id = str(les), aanwezigheid_check = 1).all())
+        aanwezigheid = [{"aanwezig" : aanwezigcount}]
         for test in tests:
             case = {"naam": test.student.naam, "studentnummer": test.student.studentnummer, "aanwezigheid": test.aanwezigheid_check, "afwezigheid_reden": test.afwezigheid_rede}
             aanwezigheid.append(case)
