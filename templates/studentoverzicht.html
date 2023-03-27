@@ -1,0 +1,60 @@
+{% extends "docentindex.html" %}
+
+{% block studentoverzicht %}
+<p>Dit is het aanwezigheids overzicht van student {{nummer}}</p>
+<table>
+    <thead>
+        <tr>
+            <th>Vak</th>
+            <th>Docent</th>
+            <th>Datum</th>
+            <th>Aanwezigheid</th>
+        </tr>
+    </thead>
+    <tbody id="overzicht">
+
+    </tbody>
+</table>
+<script>
+const fetch_overzicht = async () => {
+    try {
+        const response = await fetch('/getoverzicht/{{nummer}}', {
+            method: 'GET',
+            headers: {
+                'accept': 'application/json',
+                'Content-Type': 'application/json'
+            }
+        });
+        const data = await response.json();
+        console.log(data);
+        if (response.error) {
+            console.log("Some error with fetching JSON from highscore server")
+        } else if (!response.ok) {
+            console.log("Some non-200 HTTP response code")
+        } else {
+            set_overzicht(data)
+        }
+    } catch (e) {
+        console.log("Some error with fetching JSON from highscore server: " + e)
+    }
+    }
+    function set_overzicht(package) {
+        const overzicht = document.getElementById("overzicht")
+        overzicht.replaceChildren()
+        package.forEach(function (aanwezig) {
+            if (aanwezig["Aanwezig"] == 1) {
+            aanwezig["Aanwezig"] = "Aanwezig"}
+            overzicht.innerHTML += `
+            <tr>
+                <td>${aanwezig["Vak"]}</td>
+                <td>${aanwezig["Docent"]}</td>
+                <td>${aanwezig["Datum"]}</td>
+                <td>${aanwezig["Aanwezig"]}</td>
+            </tr>
+            `
+        })
+    }
+    fetch_overzicht()
+    let interval_id = setInterval(fetch_overzicht, 4000)
+</script>
+{% endblock %}
