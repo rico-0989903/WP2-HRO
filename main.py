@@ -57,7 +57,9 @@ class Les(db.Model):
     les_id = db.Column(db.Integer, primary_key=True, nullable=False)
     vak_id = db.Column(db.Integer, db.ForeignKey('vak.vak_id'), nullable=False)
     datum = db.Column(db.DateTime, nullable=False)
+    entry = db.Column(db.String(6), nullable=False, default="opened")
     lesinschrijvingen = db.relationship('LesInschrijving', backref='les', lazy=True)
+    
 
 class KlasInschrijving(db.Model):
     klasinschrijving_id = db.Column(db.Integer, primary_key=True, nullable=False)
@@ -427,6 +429,20 @@ def getstudenten(klas):
         studenten.append(case)
     return jsonify(studenten)
 
+@app.route("/overzicht/<nummer>")
+def studentoverzicht(nummer):
+    return render_template('studentoverzicht.html', nummer=nummer)
+
+@app.route("/getoverzicht/<nummer>")
+def getstudentoverzicht(nummer):
+    overzicht = []
+    klassen = LesInschrijving.query.filter_by(studentnummer = nummer).all()
+    for klas in klassen:
+        les = Les.query.filter_by(les_id = klas.les_id , entry = "closed").first()
+        case = {"Vak" : les.vak1.vak, "Docent" : klas.docent.naam, "Datum" : les.datum, "Aanwezig" : klas.aanwezigheid_check}
+        overzicht.append(case)
+    return jsonify(overzicht)
+
 @app.route("/klas/<klas>/lessen", methods = ['POST', 'GET'])
 def studentlessen(klas):
     return render_template('docentlessen.html', klas=klas)
@@ -466,6 +482,7 @@ def getklassen():
     else:
         return "Jij hebt geen recht"
 
+
 @app.route("/les/<les>/getaanwezigheid", methods=['POST', 'GET'])
 def lesaanwezigheid(les):
     if session['rights'] == True:
@@ -478,28 +495,40 @@ def lesaanwezigheid(les):
         return jsonify(aanwezigheid)
     else:
         return "Dit is alleen voor docenten"
+@app.route("/les/<les>/setentry", methods=['POST', 'GET', 'PUT'])
+def setentry(les):
+    state = request.json['state']
+    query = Les.query.filter_by(les_id = str(les)).first()
+    query.entry = state
+    db.session.commit()
+    return jsonify('gelukt')
 
 # submit student attendance  
 @app.route("/inschrijven/<les>")
 def aanwezig(les):
-    check = LesInschrijving.query.filter_by(les_id = les, studentnummer = session['user']).first()
-    if check:
-        if session['rights'] == False:
-            try:
-                if session['url']:
-                    session['url'] = ""
-                    vak_naam = Les.query.filter_by(les_id = les).first().vak1.vak
-                    studentnummer = session['user']
-                    naam = Student.query.filter_by(studentnummer = studentnummer).first().naam
-                    return render_template('form.html', vak=vak_naam, les=les, naam=str(naam), studentnummer=str(studentnummer))
-                else:
+    state = Les.query.filter_by(les_id = str(les)).first()
+    if state.entry == "opened":
+        check = LesInschrijving.query.filter_by(les_id = les, studentnummer = session['user']).first()
+        if check:
+            if session['rights'] == False:
+                try:
+                    if session['url']:
+                        session['url'] = ""
+                        vak_naam = Les.query.filter_by(les_id = les).first().vak1.vak
+                        studentnummer = session['user']
+                        naam = Student.query.filter_by(studentnummer = studentnummer).first().naam
+                        return render_template('form.html', vak=vak_naam, les=les, naam=str(naam), studentnummer=str(studentnummer))
+                    else:
+                        return redirect(url_for('home'))
+                except:
                     return redirect(url_for('home'))
-            except:
+            else:
                 return redirect(url_for('home'))
         else:
             return redirect(url_for('home'))
-    else:
-        return redirect(url_for('home'))
+    elif state.entry == "closed":
+        print("test")
+        return render_template("lesgesloten.html")
 
 # submit student attendance
 @app.route("/test/<les>", methods = ['POST','GET'])

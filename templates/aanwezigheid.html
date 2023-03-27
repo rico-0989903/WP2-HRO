@@ -1,6 +1,9 @@
 {% extends "docentindex.html" %}
 {% block qr %}
+<div class="qr-button">
     <img src="{{img}}", id="qrcode-img">
+    <button class="statebtn" onclick="submit_entry()">Sluit Entry</button>
+</div>    
 {% endblock %}
 
 {% block aanwezigheid %}
@@ -68,7 +71,31 @@
         }) 
     
     }
-    
+    $("form").submit(function(e) {
+    e.preventDefault();
+    });
+    function submit_entry(){
+        try{
+            var entry = {
+                state: "closed"
+            };
+
+            fetch('/les/{{les_id}}/setentry',{
+                method: 'POST',
+                body: JSON.stringify(entry),
+                headers: {
+                    "accept": "application/json",
+                    "content-type": "application/json"
+                }
+            })
+            var statebtn = document.querySelector(".statebtn")
+            statebtn.innerHTML = "Les Gesloten!"
+            } catch (error){
+                console.log(error);
+            }
+
+    }
+
     fetch_aanwezigheid()
     let interval_id = setInterval(fetch_aanwezigheid, 4000)
 

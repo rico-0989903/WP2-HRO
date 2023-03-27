@@ -83,7 +83,7 @@
     package.forEach(function (student) {
         studenten.innerHTML += `
         <tr>
-            <td>${student["naam"]}</td>
+            <td><a id="studenttext" href="/overzicht/${student["studentnummer"]}">${student["naam"]}</a></td>
             <td>${student["studentnummer"]}</td>
         </tr>
         `

@@ -508,3 +508,27 @@ img[id="start-logo"] {
 .container-qr img{
     box-shadow: 0px 0px 10px 1px black;
 }
+
+.qr-button{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 1rem;
+}
+.qr-button button{
+    background-color: #d30f4c;
+    border: 0.5px solid black;
+    color: white;
+    padding: 10px;
+    box-shadow: 0px 0px 5px 1px rgba(0, 0, 0, 0.392);
+    font-family: monospace;
+    
+}
+
+.qr-button button:hover{
+    scale: 105%;
+}
+
+#studenttext{
+    text-decoration: underline;
+}
