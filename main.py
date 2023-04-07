@@ -282,12 +282,23 @@ def getstudentlessen():
 @app.route("/getlessen", methods = ['GET'])
 def getlessen():
     if session['rights'] == True:
-        tests = Les.query.all()
+        docent_lessen = LesInschrijving.query.filter_by(docent_id=session["user"]).all()
+        all_lessons = []
+        for les in docent_lessen:
+            all_lessons.append(les.les_id)
+        print(set(all_lessons))
+        tests = set(all_lessons)
         studenten = []
         for test in tests:
-            case = {"vak_id": test.vak_id, "les_id": test.les_id, "datum": test.datum, 
-                    "vak": Vak.query.filter_by(vak_id = test.vak_id).first().vak}
+            les = Les.query.filter_by(les_id=test).first()
+            case = {"vak_id": les.vak_id, "les_id": les.les_id, "datum": les.datum, 
+                     "vak": Vak.query.filter_by(vak_id = les.vak_id).first().vak, "docent": Docent.query.filter_by(docent_id=session["user"]).first().naam}
             studenten.append(case)
+
+        # for test in tests:
+        #     case = {"vak_id": test.vak_id, "les_id": test.les_id, "datum": test.datum, 
+        #             "vak": Vak.query.filter_by(vak_id = test.vak_id).first().vak}
+        #     studenten.append(case)
         return jsonify(studenten)
     else:
         return render_template('studenthome.html')
