@@ -294,11 +294,6 @@ def getlessen():
             case = {"vak_id": les.vak_id, "les_id": les.les_id, "datum": les.datum, 
                      "vak": Vak.query.filter_by(vak_id = les.vak_id).first().vak, "docent": Docent.query.filter_by(docent_id=session["user"]).first().naam}
             studenten.append(case)
-
-        # for test in tests:
-        #     case = {"vak_id": test.vak_id, "les_id": test.les_id, "datum": test.datum, 
-        #             "vak": Vak.query.filter_by(vak_id = test.vak_id).first().vak}
-        #     studenten.append(case)
         return jsonify(studenten)
     else:
         return render_template('studenthome.html')
