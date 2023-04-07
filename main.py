@@ -286,7 +286,6 @@ def getlessen():
         all_lessons = []
         for les in docent_lessen:
             all_lessons.append(les.les_id)
-        print(set(all_lessons))
         tests = set(all_lessons)
         studenten = []
         for test in tests:
