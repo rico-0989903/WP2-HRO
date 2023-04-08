@@ -16,6 +16,7 @@
                 <th>Naam</th>
                 <th>Studentnummer</th>
                 <th>Aanwezigheid</th>
+                <th>Reden</th>
             </tr>
         </thead>
         <tbody id="aanwezigheid">
@@ -57,15 +58,20 @@
     package = package.slice(1)
     aanwezigheid.replaceChildren()
     package.forEach(function (aanwezig) {
+        aanwezig["afwezigheid_reden"] = aanwezig["afwezigheid_reden"] || ""
         if (aanwezig["aanwezigheid"] == 1) {
             aanwezig["aanwezigheid"] = "Aanwezig"}
         else if (aanwezig["aanwezigheid"] == 0) {
             aanwezig["aanwezigheid"] = "Afwezig"}
+        else if (aanwezig["aanwezigheid"] == 2) {
+            aanwezig["aanwezigheid"] = "Afgemeld",
+            aanwezig["afwezigheid_reden"] = aanwezig["afwezigheid_reden"]}
         aanwezigheid.innerHTML += `
         <tr>
             <td>${aanwezig["naam"]}</td>
             <td>${aanwezig["studentnummer"]}</td>
             <td>${aanwezig["aanwezigheid"]}</td>
+            <td>${aanwezig["afwezigheid_reden"]}</td>
         </tr>
         `
         }) 

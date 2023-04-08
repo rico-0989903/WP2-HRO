@@ -1,7 +1,7 @@
 {% extends "studentindex.html" %}
 
-{% block form %}
-<p>Aanwezigheid voor {{vak}}!</p>
+{% block afwezigform %}
+<p>Afwezig melden voor {{vak}}!</p>
 <form id="form">
     <label>Naam: {{  naam  }}</label>
     <br>
@@ -10,13 +10,17 @@
     <label>Studentnummer: {{  studentnummer  }}</label>
     <br>
     <input type="hidden" id="studentnummer" value="{{ studentnummer }}">
+    <br>
+    <label>Reden voor afwezigheid: </label>
+    <br>
+    <input type="text" id="reden" value="">
     <div id="btn" style="display: block;">
     <br>
-    <button class="button" id="btn-form" onclick="submit_entry();">Aanmelden</button>
+    <button class="button" id="btn-form" onclick="submit_entry();">Afmelden</button>
     </div>
 </form>
 <div id="confirm" style="display: none;">
-    <strong><p>je bent succesvol aangemeld voor {{ vak }}</p></strong>
+    <strong><p>je bent succesvol afgemeld voor {{ vak }}</p></strong>
 </div>
 
 <script>
@@ -27,15 +31,16 @@
         try{
             var naam = document.getElementById("naam");
             var studentnummer = document.getElementById("studentnummer");
+            var reden = document.getElementById("reden");
 
             var entry = {
                 naam: naam.value,
                 studentnummer: studentnummer.value,
-                aanwezigheid: 1,
-                reden: ""
+                aanwezigheid: 2,
+                reden: reden.value
             };
 
-            fetch('/{{les}}/aanwezig',{
+            fetch('/{{les}}/afwezig',{
                 method: 'POST',
                 body: JSON.stringify(entry),
                 headers: {

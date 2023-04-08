@@ -535,6 +535,29 @@ def aanwezig(les):
         print("test")
         return render_template("lesgesloten.html")
 
+@app.route("/uitschrijven/<les>")
+def afwezig(les):
+    state = Les.query.filter_by(les_id = str(les)).first()
+    if state.entry == "opened":
+        check = LesInschrijving.query.filter_by(les_id = les, studentnummer = session['user']).first()
+        if check:
+            if session['rights'] == False:
+                vak_naam = Les.query.filter_by(les_id = les).first().vak1.vak
+                studentnummer = session['user']
+                naam = Student.query.filter_by(studentnummer = studentnummer).first().naam
+                return render_template('afwezigform.html', vak=vak_naam, les=les, naam=str(naam), studentnummer=str(studentnummer))
+            else:
+                print("test3")
+                return redirect(url_for('home'))
+        else:
+            print("test4")
+            return redirect(url_for('home'))
+    elif state.entry == "closed":
+        print("test")
+        return render_template("lesgesloten.html")
+
+
+@app.route("/inschrijven/<les>/aanwezigheid")
 # submit student attendance
 @app.route("/test/<les>", methods = ['POST','GET'])
 def test(les):
@@ -557,6 +580,14 @@ def data(les):
     db.session.commit()
     return jsonify("Gelukt")
 
+@app.route("/<les>/afwezig", methods = ['POST', 'GET', 'PUT'])
+def data2(les):
+    studentnummer = request.json['studentnummer']
+    data = LesInschrijving.query.filter_by(les_id = str(les), studentnummer = studentnummer).first()
+    data.aanwezigheid_check = 2
+    data.afwezigheid_rede = request.json['reden']
+    db.session.commit()
+    return jsonify("Gelukt")
 
 if __name__ == '__main__':
     app.run(host="localhost", debug=True)
