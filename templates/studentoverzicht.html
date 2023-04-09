@@ -44,6 +44,10 @@ const fetch_overzicht = async () => {
         package.forEach(function (aanwezig) {
             if (aanwezig["Aanwezig"] == 1) {
             aanwezig["Aanwezig"] = "Aanwezig"}
+            else if (aanwezig["Aanwezig"] == 0) {
+            aanwezig["Aanwezig"] = "Afwezig"}
+            else if (aanwezig["Aanwezig"] == 2) {
+            aanwezig["Aanwezig"] = "Afgemeld"}
             overzicht.innerHTML += `
             <tr>
                 <td>${aanwezig["Vak"]}</td>
