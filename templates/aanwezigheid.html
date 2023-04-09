@@ -3,7 +3,7 @@
 <div class="qr-button">
     <img src="{{img}}", id="qrcode-img">
     <button class="statebtn" onclick="submit_entry()">Sluit Entry</button>
-</div>    
+</div>
 {% endblock %}
 
 {% block aanwezigheid %}
@@ -16,6 +16,8 @@
                 <th>Naam</th>
                 <th>Studentnummer</th>
                 <th>Aanwezigheid</th>
+                <th>Motivatie</th>
+                <th>Reden</th>
             </tr>
         </thead>
         <tbody id="aanwezigheid">
@@ -23,6 +25,7 @@
         </tbody>
     </table>
 </div>
+
 <script>
     const fetch_aanwezigheid = async () => {
     try {
@@ -57,15 +60,27 @@
     package = package.slice(1)
     aanwezigheid.replaceChildren()
     package.forEach(function (aanwezig) {
+        aanwezig["afwezigheid_reden"] = aanwezig["afwezigheid_reden"] || ""
+        aanwezig["motivatie"] = aanwezig["motivatie"] || ""
         if (aanwezig["aanwezigheid"] == 1) {
-            aanwezig["aanwezigheid"] = "Aanwezig"}
+            aanwezig["aanwezigheid"] = "Aanwezig",
+            aanwezig["afwezigheid_reden"] = "",
+            aanwezig["motivatie"] = aanwezig["motivatie"]}
         else if (aanwezig["aanwezigheid"] == 0) {
-            aanwezig["aanwezigheid"] = "Afwezig"}
+            aanwezig["aanwezigheid"] = "Afwezig",
+            aanwezig["aanwezigheid"] = "",
+            aanwezig["motivatie"] = ""}
+        else if (aanwezig["aanwezigheid"] == 2) {
+            aanwezig["aanwezigheid"] = "Afgemeld",
+            aanwezig["afwezigheid_reden"] = aanwezig["afwezigheid_reden"],
+            aanwezig["motivatie"] = ""}
         aanwezigheid.innerHTML += `
         <tr>
             <td>${aanwezig["naam"]}</td>
             <td>${aanwezig["studentnummer"]}</td>
             <td>${aanwezig["aanwezigheid"]}</td>
+            <td>${aanwezig["motivatie"]}</td>
+            <td>${aanwezig["afwezigheid_reden"]}</td>
         </tr>
         `
         }) 

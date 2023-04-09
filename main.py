@@ -59,7 +59,6 @@ class Les(db.Model):
     datum = db.Column(db.DateTime, nullable=False)
     entry = db.Column(db.String(6), nullable=False, default="opened")
     lesinschrijvingen = db.relationship('LesInschrijving', backref='les', lazy=True)
-    
 
 class KlasInschrijving(db.Model):
     klasinschrijving_id = db.Column(db.Integer, primary_key=True, nullable=False)
@@ -73,6 +72,7 @@ class LesInschrijving(db.Model):
     les_id = db.Column(db.Integer, db.ForeignKey('les.les_id'), nullable=False)
     aanwezigheid_check = db.Column(db.Integer, nullable=False)
     afwezigheid_rede = db.Column(db.String(200), nullable=True)
+    motivatie = db.Column(db.Integer, nullable=True)
 
 class gebruikers(db.Model):
     id = db.Column(db.Integer, primary_key=True, nullable=False, unique=True)
@@ -114,6 +114,7 @@ class LesInschrijvingSchema(ma.Schema):
     les_id = fields.Nested(LesSchema)
     aanwezigheid_check = fields.Integer()
     afwezigheid_rede = fields.String()
+    motivatie = fields.Integer()
 
 class gebruikersSchema(ma.Schema):
     id = fields.Integer()
@@ -488,7 +489,6 @@ def getklassen():
     else:
         return "Jij hebt geen recht"
 
-
 @app.route("/les/<les>/getaanwezigheid", methods=['POST', 'GET'])
 def lesaanwezigheid(les):
     if session['rights'] == True:
@@ -496,7 +496,7 @@ def lesaanwezigheid(les):
         aanwezigcount = len(LesInschrijving.query.filter_by(les_id = str(les), aanwezigheid_check = 1).all())
         aanwezigheid = [{"aanwezig" : aanwezigcount}]
         for test in tests:
-            case = {"naam": test.student.naam, "studentnummer": test.student.studentnummer, "aanwezigheid": test.aanwezigheid_check, "afwezigheid_reden": test.afwezigheid_rede}
+            case = {"naam": test.student.naam, "studentnummer": test.student.studentnummer, "aanwezigheid": test.aanwezigheid_check, "afwezigheid_reden": test.afwezigheid_rede, "motivatie": test.motivatie}
             aanwezigheid.append(case)
         return jsonify(aanwezigheid)
     else:
@@ -536,7 +536,27 @@ def aanwezig(les):
         print("test")
         return render_template("lesgesloten.html")
 
-# submit student attendance
+@app.route("/uitschrijven/<les>")
+def afwezig(les):
+    state = Les.query.filter_by(les_id = str(les)).first()
+    if state.entry == "opened":
+        check = LesInschrijving.query.filter_by(les_id = les, studentnummer = session['user']).first()
+        if check:
+            if session['rights'] == False:
+                vak_naam = Les.query.filter_by(les_id = les).first().vak1.vak
+                studentnummer = session['user']
+                naam = Student.query.filter_by(studentnummer = studentnummer).first().naam
+                return render_template('afwezigform.html', vak=vak_naam, les=les, naam=str(naam), studentnummer=str(studentnummer))
+            else:
+                print("test3")
+                return redirect(url_for('home'))
+        else:
+            print("test4")
+            return redirect(url_for('home'))
+    elif state.entry == "closed":
+        print("test")
+        return render_template("lesgesloten.html")
+
 @app.route("/test/<les>", methods = ['POST','GET'])
 def test(les):
     if session['rights'] == True:
@@ -555,9 +575,18 @@ def data(les):
     studentnummer = request.json['studentnummer']
     data = LesInschrijving.query.filter_by(les_id = str(les), studentnummer = studentnummer).first()
     data.aanwezigheid_check = 1
+    data.motivatie = request.json['motivatie']
     db.session.commit()
     return jsonify("Gelukt")
 
+@app.route("/<les>/afwezig", methods = ['POST', 'GET', 'PUT'])
+def data2(les):
+    studentnummer = request.json['studentnummer']
+    data = LesInschrijving.query.filter_by(les_id = str(les), studentnummer = studentnummer).first()
+    data.aanwezigheid_check = 2
+    data.afwezigheid_rede = request.json['reden']
+    db.session.commit()
+    return jsonify("Gelukt")
 
 if __name__ == '__main__':
     app.run(host="localhost", debug=True)

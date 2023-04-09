@@ -8,6 +8,7 @@
             <tr>
                 <th>Lessen</th>
                 <th>Tijd</th>
+                <th></th>
             </tr>
         </thead>
         <tbody id="lessen">
@@ -46,6 +47,7 @@
         <tr>
             <td>${les["vak"]}</td>
             <td>${les["datum"]}</td>
+            <td><button class="button1"><a href="/uitschrijven/${les["les_id"]}">Afmelden</a></button></td>
         </tr>
         `
         })
