@@ -472,7 +472,7 @@ def aanwezigheid(les):
         tests = Les.query.filter_by(les_id = les).first()
         lesnaam = tests.vak1.vak
         les = tests.les_id
-        img = qrcode.make(f"http://192.168.1.109:5000/inschrijven/{les}")
+        img = qrcode.make(f"http://localhost:5000/inschrijven/{les}")
         img.save('static/qr.png')
         img = url_for('static', filename='qr.png')
         return render_template('aanwezigheid.html', lesnaam=lesnaam, les_id=les, img=img)
@@ -588,4 +588,4 @@ def data2(les):
     return jsonify("Gelukt")
 
 if __name__ == '__main__':
-    app.run(host="192.168.1.109", debug=True)
+    app.run(host="localhost", debug=True)
