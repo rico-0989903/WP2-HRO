@@ -10,8 +10,25 @@
     <label>Studentnummer: {{  studentnummer  }}</label>
     <br>
     <input type="hidden" id="studentnummer" value="{{ studentnummer }}">
-    <div id="btn" style="display: block;">
     <br>
+    <label>Check-in vraag:</label>
+    <br>
+    <label>Heb je zin in de les?</label>
+    <br>
+    <div class="radio">
+    <input type="radio" id="ja,veel" name="aanwezigheid" value="4"><label for="ja,veel">Ja, heel veel zin!</label>
+    </div>
+    <div class="radio">
+    <input type="radio" id="ja,licht" name="aanwezigheid" value="3"><label for="ja,licht">Ja, lichtelijk zin.</label>
+    </div>
+    <div class="radio">
+    <input type="radio" id="Nee,amper" name="aanwezigheid" value="2"><label for="Nee,amper">Nee, amper zin.</label>
+    </div>
+    <div class="radio">
+    <input type="radio" id="Nee,niet" name="aanwezigheid" value="1"><label for="Nee,niet">Nee, helemaal geen zin!</label>
+    </div>
+    <br>
+    <div id="btn" style="display: block;">
     <button class="button" id="btn-form" onclick="submit_entry();">Aanmelden</button>
     </div>
 </form>
@@ -27,12 +44,14 @@
         try{
             var naam = document.getElementById("naam");
             var studentnummer = document.getElementById("studentnummer");
+            var antwoord = document.querySelector('input[name="aanwezigheid"]:checked').value;
 
             var entry = {
                 naam: naam.value,
                 studentnummer: studentnummer.value,
                 aanwezigheid: 1,
-                reden: ""
+                reden: "",
+                antwoord: antwoord
             };
 
             fetch('/{{les}}/aanwezig',{
