@@ -10,8 +10,15 @@
     <label>Studentnummer: {{  studentnummer  }}</label>
     <br>
     <input type="hidden" id="studentnummer" value="{{ studentnummer }}">
-    <div id="btn" style="display: block;">
     <br>
+    <label>Check-in vraag:</label>
+    <br>
+    <label>Heb je zin in de les?</label>
+    <br>
+    <label for="slider">Cijfer van 1-10: </label>
+    <input type="range" id="slider" name="slider" min="0" max="10" value="5">
+    <br>
+    <div id="btn" style="display: block;">
     <button class="button" id="btn-form" onclick="submit_entry();">Aanmelden</button>
     </div>
 </form>
@@ -27,12 +34,14 @@
         try{
             var naam = document.getElementById("naam");
             var studentnummer = document.getElementById("studentnummer");
+            var motivatie = document.getElementById("slider").value;
 
             var entry = {
                 naam: naam.value,
                 studentnummer: studentnummer.value,
                 aanwezigheid: 1,
-                reden: ""
+                reden: "",
+                motivatie: motivatie
             };
 
             fetch('/{{les}}/aanwezig',{

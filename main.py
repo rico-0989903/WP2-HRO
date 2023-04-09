@@ -59,7 +59,6 @@ class Les(db.Model):
     datum = db.Column(db.DateTime, nullable=False)
     entry = db.Column(db.String(6), nullable=False, default="opened")
     lesinschrijvingen = db.relationship('LesInschrijving', backref='les', lazy=True)
-    
 
 class KlasInschrijving(db.Model):
     klasinschrijving_id = db.Column(db.Integer, primary_key=True, nullable=False)
@@ -73,6 +72,7 @@ class LesInschrijving(db.Model):
     les_id = db.Column(db.Integer, db.ForeignKey('les.les_id'), nullable=False)
     aanwezigheid_check = db.Column(db.Integer, nullable=False)
     afwezigheid_rede = db.Column(db.String(200), nullable=True)
+    motivatie = db.Column(db.Integer, nullable=True)
 
 class gebruikers(db.Model):
     id = db.Column(db.Integer, primary_key=True, nullable=False, unique=True)
@@ -114,6 +114,7 @@ class LesInschrijvingSchema(ma.Schema):
     les_id = fields.Nested(LesSchema)
     aanwezigheid_check = fields.Integer()
     afwezigheid_rede = fields.String()
+    motivatie = fields.Integer()
 
 class gebruikersSchema(ma.Schema):
     id = fields.Integer()
@@ -471,7 +472,7 @@ def aanwezigheid(les):
         tests = Les.query.filter_by(les_id = les).first()
         lesnaam = tests.vak1.vak
         les = tests.les_id
-        img = qrcode.make(f"http://localhost:5000/inschrijven/{les}")
+        img = qrcode.make(f"http://192.168.1.109:5000/inschrijven/{les}")
         img.save('static/qr.png')
         img = url_for('static', filename='qr.png')
         return render_template('aanwezigheid.html', lesnaam=lesnaam, les_id=les, img=img)
@@ -487,7 +488,6 @@ def getklassen():
     else:
         return "Jij hebt geen recht"
 
-
 @app.route("/les/<les>/getaanwezigheid", methods=['POST', 'GET'])
 def lesaanwezigheid(les):
     if session['rights'] == True:
@@ -495,7 +495,7 @@ def lesaanwezigheid(les):
         aanwezigcount = len(LesInschrijving.query.filter_by(les_id = str(les), aanwezigheid_check = 1).all())
         aanwezigheid = [{"aanwezig" : aanwezigcount}]
         for test in tests:
-            case = {"naam": test.student.naam, "studentnummer": test.student.studentnummer, "aanwezigheid": test.aanwezigheid_check, "afwezigheid_reden": test.afwezigheid_rede}
+            case = {"naam": test.student.naam, "studentnummer": test.student.studentnummer, "aanwezigheid": test.aanwezigheid_check, "afwezigheid_reden": test.afwezigheid_rede, "motivatie": test.motivatie}
             aanwezigheid.append(case)
         return jsonify(aanwezigheid)
     else:
@@ -556,9 +556,6 @@ def afwezig(les):
         print("test")
         return render_template("lesgesloten.html")
 
-
-@app.route("/inschrijven/<les>/aanwezigheid")
-# submit student attendance
 @app.route("/test/<les>", methods = ['POST','GET'])
 def test(les):
     if session['rights'] == True:
@@ -577,6 +574,7 @@ def data(les):
     studentnummer = request.json['studentnummer']
     data = LesInschrijving.query.filter_by(les_id = str(les), studentnummer = studentnummer).first()
     data.aanwezigheid_check = 1
+    data.motivatie = request.json['motivatie']
     db.session.commit()
     return jsonify("Gelukt")
 
@@ -590,4 +588,4 @@ def data2(les):
     return jsonify("Gelukt")
 
 if __name__ == '__main__':
-    app.run(host="localhost", debug=True)
+    app.run(host="192.168.1.109", debug=True)

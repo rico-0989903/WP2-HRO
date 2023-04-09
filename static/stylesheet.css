@@ -500,7 +500,6 @@ img[id="start-logo"] {
 .container-qr{
     display: flex;
     flex-direction: row;
-    align-items: center;
     gap: 1rem;
     justify-content: space-evenly;
 }
@@ -512,8 +511,9 @@ img[id="start-logo"] {
 .qr-button{
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content: right;
     gap: 1rem;
+    margin-top: 25px;
 }
 .qr-button button{
     background-color: #d30f4c;
@@ -531,4 +531,16 @@ img[id="start-logo"] {
 
 #studenttext{
     text-decoration: underline;
+}
+
+input[type="radio"]{
+    margin-right: 5px;
+    font-family: monospace;
+}
+
+.radio{
+    display: flex;
+    flex-direction: row;
+    justify-content: left;
+    margin: 5px;
 }
