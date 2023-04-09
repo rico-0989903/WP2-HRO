@@ -72,7 +72,7 @@ class LesInschrijving(db.Model):
     les_id = db.Column(db.Integer, db.ForeignKey('les.les_id'), nullable=False)
     aanwezigheid_check = db.Column(db.Integer, nullable=False)
     afwezigheid_rede = db.Column(db.String(200), nullable=True)
-    vraag = db.Column(db.Integer, nullable=True)
+    motivatie = db.Column(db.Integer, nullable=True)
 
 class gebruikers(db.Model):
     id = db.Column(db.Integer, primary_key=True, nullable=False, unique=True)
@@ -114,7 +114,7 @@ class LesInschrijvingSchema(ma.Schema):
     les_id = fields.Nested(LesSchema)
     aanwezigheid_check = fields.Integer()
     afwezigheid_rede = fields.String()
-    vraag = fields.Integer()
+    motivatie = fields.Integer()
 
 class gebruikersSchema(ma.Schema):
     id = fields.Integer()
@@ -495,7 +495,7 @@ def lesaanwezigheid(les):
         aanwezigcount = len(LesInschrijving.query.filter_by(les_id = str(les), aanwezigheid_check = 1).all())
         aanwezigheid = [{"aanwezig" : aanwezigcount}]
         for test in tests:
-            case = {"naam": test.student.naam, "studentnummer": test.student.studentnummer, "aanwezigheid": test.aanwezigheid_check, "afwezigheid_reden": test.afwezigheid_rede, "vraag": test.vraag}
+            case = {"naam": test.student.naam, "studentnummer": test.student.studentnummer, "aanwezigheid": test.aanwezigheid_check, "afwezigheid_reden": test.afwezigheid_rede, "motivatie": test.motivatie}
             aanwezigheid.append(case)
         return jsonify(aanwezigheid)
     else:
@@ -574,7 +574,7 @@ def data(les):
     studentnummer = request.json['studentnummer']
     data = LesInschrijving.query.filter_by(les_id = str(les), studentnummer = studentnummer).first()
     data.aanwezigheid_check = 1
-    data.vraag = request.json['antwoord']
+    data.motivatie = request.json['motivatie']
     db.session.commit()
     return jsonify("Gelukt")
 
