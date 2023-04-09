@@ -444,8 +444,9 @@ def getstudentoverzicht(nummer):
     klassen = LesInschrijving.query.filter_by(studentnummer = nummer).all()
     for klas in klassen:
         les = Les.query.filter_by(les_id = klas.les_id , entry = "closed").first()
-        case = {"Vak" : les.vak1.vak, "Docent" : klas.docent.naam, "Datum" : les.datum, "Aanwezig" : klas.aanwezigheid_check}
-        overzicht.append(case)
+        if les is not None:
+            case = {"Vak" : les.vak1.vak, "Docent" : klas.docent.naam, "Datum" : les.datum, "Aanwezig" : klas.aanwezigheid_check}
+            overzicht.append(case)
     return jsonify(overzicht)
 
 @app.route("/klas/<klas>/lessen", methods = ['POST', 'GET'])
