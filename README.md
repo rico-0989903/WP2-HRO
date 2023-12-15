@@ -1,6 +1,17 @@
+# Installatie
+Om Flask te kunnen starten zul je eerst de Flask packages moeten installeren. Wil je latere problemen met versies voorkomen, dan raden we je aan een virtual environment te maken en daar de modules in te installeren:  
+```
+pip install virtualenv
+virtualenv venv
+.\venv\sripts\activate
+pip install -r requirements.txt
+```
+
+
+# Login
 901 t/m 907 zijn docenten, die hebben rechten om lessen aan te maken.
 De nummers die al geregistreerd staan zijn 901, 129, 130, 161, 181.
-Alle wachtwoorden zijn 123456789.
+Alle wachtwoorden zijn 1234567890
 
 ## 4. Bronnen
 
